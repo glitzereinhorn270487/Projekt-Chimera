@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "firefly-dashboard/package.json",
-      "use": "@vercel/next",
-      "config": { "distDir": "firefly-dashboard/.next" }
-    }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/firefly-dashboard/$1" }
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "dist/firebase-ai-angular/browser",
+  "cleanUrls": true,
+  "functions": { "api/**/*": { "runtime": "nodejs20.x" } },
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
+  "crons": [
+    { "path": "/api/scanNewTokens", "schedule": "*/1 * * * *" },
+    { "path": "/api/processTokenQueue", "schedule": "* * * * *" },
+    { "path": "/api/managePositions", "schedule": "* * * * *" }
   ]
 }

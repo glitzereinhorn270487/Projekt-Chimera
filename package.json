@@ -1,29 +1,21 @@
 {
-  "name": "gemini-demo",
+  "name": "projekt-chimera",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "workspaces": [
-    "firefly-dashboard"
-  ],
   "scripts": {
-    "dev": "vite",
-    "build": "npm run build -w firefly-dashboard",
-    "preview": "vite preview",
-    "start": "npm run start -w firefly-dashboard"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
+  "engines": { "node": ">=20" },
   "dependencies": {
-    "@google/genai": "^1.0.1",
-    "@solana/web3.js": "^1.98.4",
-    "base64-js": "^1.5.1",
-    "markdown-it": "^13.0.2",
-    "next": "14.2.32",
-    "node-fetch": "^3.3.2",
-    "node-telegram-bot-api": "^0.63.0",
-    "redis": "^5.8.2",
-    "zod": "^4.1.5"
+    "next": "14.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "vite": "^6.3.5"
+    "autoprefixer": "10.4.16",
+    "postcss": "8.4.38",
+    "tailwindcss": "3.4.10",
+    "typescript": "5.4.5"
   }
 }
