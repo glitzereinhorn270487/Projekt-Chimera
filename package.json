@@ -10,8 +10,13 @@
   },
   "dependencies": {
     "@google/genai": "^1.0.1",
+    "@solana/web3.js": "^1.98.4",
     "base64-js": "^1.5.1",
-    "markdown-it": "^13.0.2"
+    "markdown-it": "^13.0.2",
+    "node-fetch": "^3.3.2",
+    "node-telegram-bot-api": "^0.66.0",
+    "redis": "^5.8.2",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "vite": "^6.3.5"
