@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/scanNewTokens",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/processTokenQueue",
+      "schedule": "*/1 * * * *"
+    },
+    {
+      "path": "/api/managePositions",
+      "schedule": "*/2 * * * *"
+    }
+  ]
+}
