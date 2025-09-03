@@ -3,10 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "firefly-dashboard"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "npm run build -w firefly-dashboard",
+    "preview": "vite preview",
+    "start": "npm run start -w firefly-dashboard"
   },
   "dependencies": {
     "@google/genai": "^1.0.1",

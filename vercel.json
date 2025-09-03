@@ -1,16 +1,13 @@
 {
-    "crons": [
-      {
-        "path": "/api/scanNewTokens",
-        "schedule": "*/2 * * * *"
-      },
-      {
-        "path": "/api/processTokenQueue",
-        "schedule": "*/1 * * * *"
-      },
-      {
-        "path": "/api/managePositions",
-        "schedule": "*/1 * * * *"
-      }
-    ]
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "firefly-dashboard/package.json",
+      "use": "@vercel/next",
+      "config": { "distDir": "firefly-dashboard/.next" }
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/firefly-dashboard/$1" }
+  ]
+}
