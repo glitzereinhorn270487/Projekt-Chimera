@@ -1,7 +1,7 @@
 
 import { Connection } from '@solana/web3.js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import config from '../lib/config';
+import { config } from '@/config';
 import { getAllTrades, deleteTrade, Trade } from '../lib/database';
 import { sendTelegramMessage } from '../lib/telegram';
 
@@ -50,7 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(200).json({ message: 'Position management completed successfully.' });
     } catch (error) {
       console.error('Error during position management:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: 'Internal ServerError' });
     }
   } else {
     res.setHeader('Allow', 'POST');
