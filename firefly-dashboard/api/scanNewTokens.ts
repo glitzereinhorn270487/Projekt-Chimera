@@ -6,7 +6,7 @@ import { addTokenToQueue } from '../lib/database';
 import { sendTelegramMessage } from '../lib/telegram';
 
 // Initialize Solana connection
-const connection = new Connection(config.SOLANA_RPC_URL);
+const connection = new Connection(config.QUICKNODE_RPC_URL);
 
 // --- Mock/Simulated DEX Scanner ---
 // In a real implementation, you would use a DEX SDK or API (e.g., Raydium, Orca).

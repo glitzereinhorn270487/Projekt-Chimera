@@ -5,7 +5,7 @@ import { config } from '@/config';
 import { getNextTokenFromQueue, saveTrade } from '../lib/database';
 import { sendTelegramMessage } from '../lib/telegram';
 
-const connection = new Connection(config.SOLANA_RPC_URL);
+const connection = new Connection(config.QUICKNODE_RPC_URL);
 
 // --- Mock Trading Logic ---
 // In a real implementation, this would involve complex analysis.

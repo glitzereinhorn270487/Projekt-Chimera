@@ -1,7 +1,7 @@
 
 import { Redis } from '@upstash/redis';
 import { v4 as uuidv4 } from 'uuid';
-import config from './config';
+import { config } from '../config';
 
 if (!config.REDIS_URL) {
   throw new Error('REDIS_URL is not defined in the environment variables');
@@ -9,7 +9,7 @@ if (!config.REDIS_URL) {
 
 const redis = new Redis({
   url: config.REDIS_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '', // Usually, the token is part of the URL
+  token: config.UPSTASH_REDIS_REST_TOKEN || '', // Usually, the token is part of the URL
 });
 
 // Key for the token queue in Redis
@@ -89,5 +89,5 @@ export const getAllTrades = async (): Promise<Trade[]> => {
     return [];
   }
   const tradesJson = await redis.mget<string[]>(...tradeKeys);
-  return tradesJson.map((tradeJson) => JSON.parse(tradeJson) as Trade);
+  return tradesJson.filter(Boolean).map((tradeJson: string) => JSON.parse(tradeJson) as Trade);
 };

@@ -1,6 +1,6 @@
 
 import TelegramBot from 'node-telegram-bot-api';
-import config from './config';
+import { config } from '../config';
 
 const token = config.TELEGRAM_BOT_TOKEN;
 
@@ -12,7 +12,7 @@ if (token) {
 // You need to get your chat ID. You can get it by sending a message to the bot and checking the API response.
 // A simple way is to message your bot and then open this URL in your browser:
 // https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const CHAT_ID = config.TELEGRAM_CHAT_ID;
 
 /**
  * Sends a message to a predefined Telegram chat.

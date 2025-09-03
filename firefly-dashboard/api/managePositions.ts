@@ -5,7 +5,7 @@ import { config } from '@/config';
 import { getAllTrades, deleteTrade, Trade } from '../lib/database';
 import { sendTelegramMessage } from '../lib/telegram';
 
-const connection = new Connection(config.SOLANA_RPC_URL);
+const connection = new Connection(config.QUICKNODE_RPC_URL);
 
 // --- Mock Position Management Logic ---
 const PROFIT_TARGET = 1.5; // 50% profit
