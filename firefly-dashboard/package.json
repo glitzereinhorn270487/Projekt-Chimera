@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.85.9",
     "@tanstack/react-table": "^8.21.3",
     "@upstash/redis": "^1.35.3",
@@ -31,8 +32,10 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/node-telegram-bot-api": "^0.64.10",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vercel/node": "^5.3.19",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4",

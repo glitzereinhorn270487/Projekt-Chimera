@@ -3,7 +3,7 @@
 
 import { Row, flexRender } from '@tanstack/react-table';
 import { Trade } from '@/hooks/use-trades';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 
@@ -12,7 +12,7 @@ interface TradeRowProps {
 }
 
 export function TradeRow({ row }: TradeRowProps) {
-  const variants = {
+  const variants: Variants = {
     hidden: { opacity: 0, y: 20, rotateX: -45, scale: 0.9 },
     visible: {
       opacity: 1,
