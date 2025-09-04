@@ -1,184 +1,125 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Position, ClosedPosition, Chain } from "../types/position";
-import { calcPnl } from "../lib/pnl";
+import { useState, useEffect } from "react";
 
-type PriceMap = Record<string, number | null>;
+type Position = {
+  token: string;
+  amount: number;
+  entryPrice: number;
+  currentPrice: number;
+};
 
-function dex(chain: Chain, sym: string) {
-  if (chain === "solana") return `https://dexscreener.com/solana/${sym.toLowerCase()}`;
-  return `https://coinmarketcap.com/currencies/${sym.toLowerCase()}`;
+type ClosedPosition = {
+  token: string;
+  amount: number;
+  entryPrice: number;
+  exitPrice: number;
+};
+
+function calcPnl(entry: number, current: number, amount: number) {
+  const pnl = (current - entry) * amount;
+  const pnlPct = ((current - entry) / entry) * 100;
+  return { pnl, pnlPct };
 }
 
-const LS_OPEN = "ff_open_positions";
-const LS_CLOSED = "ff_closed_positions";
-
 export default function PositionsDashboard() {
-  const [open, setOpen] = useState<Position[]>([]);
-  const [closed, setClosed] = useState<ClosedPosition[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [openPositions, setOpenPositions] = useState<Position[]>([]);
+  const [closedPositions, setClosedPositions] = useState<ClosedPosition[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Form
-  const [sym, setSym] = useState("SOL");
-  const [amt, setAmt] = useState<number>(0);
-  const [entry, setEntry] = useState<number>(0);
-  const [chain, setChain] = useState<Chain>("solana");
-
-  // load/persist
   useEffect(() => {
-    const o = JSON.parse(localStorage.getItem(LS_OPEN) || "[]");
-    const c = JSON.parse(localStorage.getItem(LS_CLOSED) || "[]");
-    if (o.length === 0 && c.length === 0) {
-      const seed: Position[] = [
-        { id: "p1", token: "SOL", chain: "solana", amount: 100, entryPrice: 150.25, openedAt: Date.now(), link: dex("solana","SOL") },
-        { id: "p2", token: "ETH", chain: "ethereum", amount: 10, entryPrice: 3000, openedAt: Date.now(), link: dex("ethereum","ETH") }
-      ];
-      setOpen(seed);
-      setClosed([
-        { id: "c1", token: "JUP", chain: "solana", amount: 5000, entryPrice: 1.10, currentPrice: 1.25,
-          exitPrice: 1.25, openedAt: Date.now()-86400000, closedAt: Date.now(), link: dex("solana","JUP") },
-        { id: "c2", token: "WIF", chain: "solana", amount: 10000, entryPrice: 2.50, currentPrice: 2.00,
-          exitPrice: 2.00, openedAt: Date.now()-172800000, closedAt: Date.now(), link: dex("solana","WIF") }
-      ]);
-    } else {
-      setOpen(o); setClosed(c);
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/managePositions");
+        const data = await res.json();
+        setOpenPositions(data.openPositions || []);
+        setClosedPositions(data.closedPositions || []);
+      } catch (err) {
+        console.error("❌ Fehler beim Laden:", err);
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchData();
   }, []);
 
-  useEffect(() => localStorage.setItem(LS_OPEN, JSON.stringify(open)), [open]);
-  useEffect(() => localStorage.setItem(LS_CLOSED, JSON.stringify(closed)), [closed]);
-
-  async function refreshPrices() {
-    const symbols = Array.from(new Set(open.map(p => p.token.toUpperCase())));
-    if (!symbols.length) return;
-    setLoading(true);
-    try {
-      const r = await fetch(`/api/prices?symbols=${encodeURIComponent(symbols.join(","))}`);
-      const map = (await r.json()) as PriceMap;
-      setOpen(prev => prev.map(p => ({ ...p, currentPrice: map[p.token.toUpperCase()] ?? p.currentPrice ?? p.entryPrice })));
-    } finally { setLoading(false); }
-  }
-
-  function addPosition() {
-    if (!sym || !amt || !entry) return;
-    const p: Position = {
-      id: `p_${Date.now()}`,
-      token: sym.toUpperCase(),
-      chain,
-      amount: amt,
-      entryPrice: entry,
-      openedAt: Date.now(),
-      currentPrice: entry,
-      link: dex(chain, sym.toUpperCase())
-    };
-    setOpen(prev => [p, ...prev]);
-    setSym(""); setAmt(0); setEntry(0);
-    void refreshPrices();
-  }
-
-  function closePosition(p: Position) {
-    const exit = p.currentPrice ?? p.entryPrice;
-    const c: ClosedPosition = { ...p, exitPrice: exit, closedAt: Date.now() };
-    setOpen(prev => prev.filter(x => x.id !== p.id));
-    setClosed(prev => [c, ...prev]);
-  }
+  if (loading) return <p>Lade Daten...</p>;
 
   return (
-    <main className="p-6 md:p-8 lg:p-10 space-y-6">
-      <header className="flex items-center gap-3">
-        <span className="text-2xl">🔥</span>
-        <h1 className="text-2xl md:text-3xl font-semibold">Firefly Dashboard</h1>
-      </header>
+    <div className="grid md:grid-cols-2 gap-6">
+      {/* Open Positions */}
+      <div className="bg-[#1a1a1a] rounded-xl p-6 shadow-lg">
+        <h2 className="text-xl font-semibold mb-4">Open Positions</h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left opacity-70">
+              <th>Token</th>
+              <th>Amount</th>
+              <th>Entry</th>
+              <th>Current</th>
+              <th>P&amp;L</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody>
+            {openPositions.map((p, i) => {
+              const { pnl, pnlPct } = calcPnl(
+                p.entryPrice,
+                p.currentPrice,
+                p.amount
+              );
+              return (
+                <tr key={i} className="border-t border-gray-700">
+                  <td className="py-2">{p.token}</td>
+                  <td>{p.amount}</td>
+                  <td>${p.entryPrice.toFixed(2)}</td>
+                  <td>${p.currentPrice.toFixed(2)}</td>
+                  <td className={pnl >= 0 ? "text-green-400" : "text-red-400"}>
+                    {pnl >= 0 ? "+" : ""}
+                    ${pnl.toFixed(2)}
+                  </td>
+                  <td className={pnlPct >= 0 ? "text-green-400" : "text-red-400"}>
+                    {pnlPct.toFixed(2)}%
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Controls */}
-      <section className="bg-black/20 rounded-2xl p-4 space-y-3">
-        <h2 className="font-semibold">Add Position</h2>
-        <div className="grid md:grid-cols-5 gap-3">
-          <input className="bg-transparent border px-3 py-2 rounded-lg" placeholder="Token (SOL)" value={sym} onChange={e=>setSym(e.target.value)} />
-          <input className="bg-transparent border px-3 py-2 rounded-lg" placeholder="Amount" type="number" value={amt||""} onChange={e=>setAmt(Number(e.target.value))} />
-          <input className="bg-transparent border px-3 py-2 rounded-lg" placeholder="Entry (USD)" type="number" value={entry||""} onChange={e=>setEntry(Number(e.target.value))} />
-          <div className="flex gap-2">
-            <button className={`border px-3 py-2 rounded-lg ${chain==='solana'?'bg-white/10':''}`} onClick={()=>setChain('solana')}>Solana</button>
-            <button className={`border px-3 py-2 rounded-lg ${chain==='ethereum'?'bg-white/10':''}`} onClick={()=>setChain('ethereum')}>Ethereum</button>
-          </div>
-          <button onClick={addPosition} className="border px-3 py-2 rounded-lg hover:bg-white/10">Add</button>
-        </div>
-      </section>
-
-      <section className="grid lg:grid-cols-2 gap-6">
-        {/* Open */}
-        <div className="rounded-2xl p-4 border">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Open Positions</h2>
-            <button onClick={refreshPrices} disabled={loading} className="border px-3 py-1 rounded-lg hover:bg-white/10">{loading?'…':'Refresh'}</button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead><tr>
-                <th className="text-left">Token</th>
-                <th className="text-right">Amount</th>
-                <th className="text-right">Entry</th>
-                <th className="text-right">Price</th>
-                <th className="text-right">P&L</th>
-                <th className="text-right">P&L %</th>
-                <th></th>
-              </tr></thead>
-              <tbody>
-              {open.map(p=>{
-                const { abs, pct } = calcPnl(p);
-                return (
-                  <tr key={p.id} className="border-t/10 border-t">
-                    <td className="font-semibold">{p.token}</td>
-                    <td className="text-right">{p.amount.toLocaleString()}</td>
-                    <td className="text-right">${p.entryPrice.toLocaleString()}</td>
-                    <td className="text-right">${(p.currentPrice ?? p.entryPrice).toLocaleString()}</td>
-                    <td className={`text-right ${abs>=0?'text-green-400':'text-red-400'}`}>${abs.toLocaleString()}</td>
-                    <td className={`text-right ${pct>=0?'text-green-400':'text-red-400'}`}>{pct.toFixed(2)}%</td>
-                    <td className="text-right">
-                      <div className="flex gap-2 justify-end">
-                        <a href={p.link} target="_blank" rel="noreferrer" className="underline underline-offset-4">↗</a>
-                        <button onClick={()=>closePosition(p)} className="border px-2 py-1 rounded-md hover:bg-white/10">Close</button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Closed */}
-        <div className="rounded-2xl p-4 border">
-          <h2 className="text-lg font-semibold mb-2">Closed Positions</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead><tr>
-                <th className="text-left">Token</th>
-                <th className="text-right">Amount</th>
-                <th className="text-right">Entry</th>
-                <th className="text-right">Exit</th>
-                <th className="text-right">P&L</th>
-              </tr></thead>
-              <tbody>
-              {closed.map(p=>{
-                const pnl = (p.exitPrice - p.entryPrice) * p.amount;
-                return (
-                  <tr key={p.id} className="border-t/10 border-t">
-                    <td className="font-semibold">{p.token}</td>
-                    <td className="text-right">{p.amount.toLocaleString()}</td>
-                    <td className="text-right">${p.entryPrice.toLocaleString()}</td>
-                    <td className="text-right">${p.exitPrice.toLocaleString()}</td>
-                    <td className={`text-right ${pnl>=0?'text-green-400':'text-red-400'}`}>${pnl.toLocaleString()}</td>
-                  </tr>
-                );
-              })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
+      {/* Closed Positions */}
+      <div className="bg-[#1a1a1a] rounded-xl p-6 shadow-lg">
+        <h2 className="text-xl font-semibold mb-4">Closed Positions</h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left opacity-70">
+              <th>Token</th>
+              <th>Amount</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>P&amp;L</th>
+            </tr>
+          </thead>
+          <tbody>
+            {closedPositions.map((p, i) => {
+              const { pnl } = calcPnl(p.entryPrice, p.exitPrice, p.amount);
+              return (
+                <tr key={i} className="border-t border-gray-700">
+                  <td className="py-2">{p.token}</td>
+                  <td>{p.amount}</td>
+                  <td>${p.entryPrice.toFixed(2)}</td>
+                  <td>${p.exitPrice.toFixed(2)}</td>
+                  <td className={pnl >= 0 ? "text-green-400" : "text-red-400"}>
+                    {pnl >= 0 ? "+" : ""}
+                    ${pnl.toFixed(2)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
