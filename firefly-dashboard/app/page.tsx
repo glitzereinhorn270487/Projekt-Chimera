@@ -1,8 +1,15 @@
+import PositionsDashboard from "../components/PositionsDashboard";
+
 export default function Page() {
   return (
-    <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>🚀 Firefly Dashboard</h1>
-      <p>Dein Deployment funktioniert! 🎉</p>
+    <main className="min-h-screen bg-[#0d0d0d] text-white p-6">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold">🔥 Firefly Dashboard</h1>
+        <p className="opacity-70">Deine aktuellen Positionen im Überblick</p>
+      </header>
+
+      <PositionsDashboard />
     </main>
   );
 }
+
