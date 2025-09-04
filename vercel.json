@@ -1,10 +1,4 @@
 {
-  "version": 2,
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist/firebase-ai-angular/browser",
-  "cleanUrls": true,
-  "functions": { "api/**/*": { "runtime": "nodejs20.x" } },
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "crons": [
     { "path": "/api/scanNewTokens", "schedule": "*/1 * * * *" },
     { "path": "/api/processTokenQueue", "schedule": "* * * * *" },
