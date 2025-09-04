@@ -1,125 +1,96 @@
 "use client";
+import { useEffect, useState } from "react";
 
-import { useState, useEffect } from "react";
-
-type Position = {
-  token: string;
-  amount: number;
-  entryPrice: number;
-  currentPrice: number;
-};
-
-type ClosedPosition = {
-  token: string;
-  amount: number;
-  entryPrice: number;
-  exitPrice: number;
-};
-
-function calcPnl(entry: number, current: number, amount: number) {
-  const pnl = (current - entry) * amount;
-  const pnlPct = ((current - entry) / entry) * 100;
-  return { pnl, pnlPct };
-}
+type Position = { token: string; amount: number; entryPrice: number; currentPrice: number };
+type ClosedPosition = { token: string; amount: number; entryPrice: number; exitPrice: number };
 
 export default function PositionsDashboard() {
-  const [openPositions, setOpenPositions] = useState<Position[]>([]);
-  const [closedPositions, setClosedPositions] = useState<ClosedPosition[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState<Position[]>([]);
+  const [closed, setClosed] = useState<ClosedPosition[]>([]);
+  const [prices, setPrices] = useState<Record<string, number>>({});
 
+  // Auto-Refresh alle 20 Sekunden
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/managePositions");
-        const data = await res.json();
-        setOpenPositions(data.openPositions || []);
-        setClosedPositions(data.closedPositions || []);
-      } catch (err) {
-        console.error("❌ Fehler beim Laden:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchData();
+    const id = setInterval(fetchData, 20000);
+    return () => clearInterval(id);
   }, []);
 
-  if (loading) return <p>Lade Daten...</p>;
+  async function fetchData() {
+    const res1 = await fetch("/api/managePositions");
+    const { openPositions, closedPositions } = await res1.json();
+    setOpen(openPositions);
+    setClosed(closedPositions);
+
+    const res2 = await fetch("/api/prices?symbols=SOL,ETH,JUP,WIF");
+    const { prices } = await res2.json();
+    setPrices(prices);
+  }
+
+  async function addPosition() {
+    await fetch("/api/managePositions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: "SOL", amount: 50, entryPrice: prices.SOL || 160 }),
+    });
+    fetchData();
+  }
+
+  async function closePosition(token: string) {
+    await fetch("/api/managePositions", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+    fetchData();
+  }
 
   return (
-    <div className="grid md:grid-cols-2 gap-6">
-      {/* Open Positions */}
-      <div className="bg-[#1a1a1a] rounded-xl p-6 shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">Open Positions</h2>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left opacity-70">
-              <th>Token</th>
-              <th>Amount</th>
-              <th>Entry</th>
-              <th>Current</th>
-              <th>P&amp;L</th>
-              <th>%</th>
-            </tr>
-          </thead>
-          <tbody>
-            {openPositions.map((p, i) => {
-              const { pnl, pnlPct } = calcPnl(
-                p.entryPrice,
-                p.currentPrice,
-                p.amount
-              );
-              return (
-                <tr key={i} className="border-t border-gray-700">
-                  <td className="py-2">{p.token}</td>
-                  <td>{p.amount}</td>
-                  <td>${p.entryPrice.toFixed(2)}</td>
-                  <td>${p.currentPrice.toFixed(2)}</td>
-                  <td className={pnl >= 0 ? "text-green-400" : "text-red-400"}>
-                    {pnl >= 0 ? "+" : ""}
-                    ${pnl.toFixed(2)}
-                  </td>
-                  <td className={pnlPct >= 0 ? "text-green-400" : "text-red-400"}>
-                    {pnlPct.toFixed(2)}%
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    <div className="p-4 space-y-6">
+      <h2 className="text-xl font-semibold">Open Positions</h2>
+      <button className="px-3 py-2 bg-blue-600 text-white rounded" onClick={addPosition}>
+        ➕ Add Position
+      </button>
+      <table className="w-full">
+        <thead>
+          <tr>
+            <th>Token</th><th>Amount</th><th>Entry</th><th>Current</th><th>PnL</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {open.map((p) => {
+            const pnl = (p.currentPrice - p.entryPrice) * p.amount;
+            return (
+              <tr key={p.token}>
+                <td>{p.token}</td>
+                <td>{p.amount}</td>
+                <td>${p.entryPrice}</td>
+                <td>${prices[p.token] ?? p.currentPrice}</td>
+                <td className={pnl >= 0 ? "text-green-500" : "text-red-500"}>
+                  {pnl.toFixed(2)}
+                </td>
+                <td>
+                  <button
+                    className="px-2 py-1 bg-red-600 text-white rounded"
+                    onClick={() => closePosition(p.token)}
+                  >
+                    ✖ Close
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
 
-      {/* Closed Positions */}
-      <div className="bg-[#1a1a1a] rounded-xl p-6 shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">Closed Positions</h2>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left opacity-70">
-              <th>Token</th>
-              <th>Amount</th>
-              <th>Entry</th>
-              <th>Exit</th>
-              <th>P&amp;L</th>
-            </tr>
-          </thead>
-          <tbody>
-            {closedPositions.map((p, i) => {
-              const { pnl } = calcPnl(p.entryPrice, p.exitPrice, p.amount);
-              return (
-                <tr key={i} className="border-t border-gray-700">
-                  <td className="py-2">{p.token}</td>
-                  <td>{p.amount}</td>
-                  <td>${p.entryPrice.toFixed(2)}</td>
-                  <td>${p.exitPrice.toFixed(2)}</td>
-                  <td className={pnl >= 0 ? "text-green-400" : "text-red-400"}>
-                    {pnl >= 0 ? "+" : ""}
-                    ${pnl.toFixed(2)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <h2 className="text-xl font-semibold">Closed Positions</h2>
+      <ul>
+        {closed.map((c) => (
+          <li key={c.token}>
+            {c.token} – {c.amount} @ ${c.entryPrice} → ${c.exitPrice}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
