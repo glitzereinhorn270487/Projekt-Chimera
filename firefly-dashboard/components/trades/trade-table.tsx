@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import { Trade } from '@/hooks/use-trades';
+import { Trade } from '../../hooks/use-trades';
 import { TradeRow } from './trade-row';
 
 interface TradeTableProps {

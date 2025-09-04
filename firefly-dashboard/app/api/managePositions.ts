@@ -1,7 +1,7 @@
 
 import { Connection } from '@solana/web3.js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { config } from '@/config';
+import { config } from '../../config';
 import { getAllTrades, deleteTrade, Trade } from '../../lib/database';
 import { sendTelegramMessage } from '../../lib/telegram';
 

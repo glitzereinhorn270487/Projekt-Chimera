@@ -1,4 +1,4 @@
-import { Position } from "@/types/position";
+import { Position } from "../types/position";
 
 export function calcPnl(p: Position) {
   const price = p.currentPrice ?? p.entryPrice;

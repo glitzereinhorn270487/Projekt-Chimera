@@ -4,7 +4,7 @@
 import { createColumnHelper, ColumnDef } from '@tanstack/react-table';
 import { Trade } from '@/hooks/use-trades';
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 const columnHelper = createColumnHelper<Trade>();
 

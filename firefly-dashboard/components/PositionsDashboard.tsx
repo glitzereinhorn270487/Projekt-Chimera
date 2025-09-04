@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Position, ClosedPosition, Chain } from "@/types/position";
-import { calcPnl } from "@/lib/pnl";
+import { Position, ClosedPosition, Chain } from "../types/position";
+import { calcPnl } from "../lib/pnl";
 
 type PriceMap = Record<string, number | null>;
 

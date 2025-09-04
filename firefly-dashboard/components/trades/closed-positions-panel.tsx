@@ -1,8 +1,8 @@
 
 'use client';
 
-import { Panel } from '@/components/ui/panel';
-import { useTrades } from '@/hooks/use-trades';
+import { Panel } from 'components/ui/panel';
+import { useTrades } from 'hooks/use-trades';
 import { TradeTable } from './trade-table';
 import { closedPositionsColumns } from './columns';
 import { Loader2 } from 'lucide-react';

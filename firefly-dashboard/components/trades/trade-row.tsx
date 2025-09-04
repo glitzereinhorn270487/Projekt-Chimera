@@ -2,9 +2,9 @@
 'use client';
 
 import { Row, flexRender } from '@tanstack/react-table';
-import { Trade } from '@/hooks/use-trades';
+import { Trade } from '../../hooks/use-trades';
 import { motion, Variants } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { Button } from '../../components/ui/button';
 import { ExternalLink } from 'lucide-react';
 
 interface TradeRowProps {
