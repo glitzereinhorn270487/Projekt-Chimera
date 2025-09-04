@@ -2,8 +2,8 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { config } from '@/config';
-import { addTokenToQueue } from '../lib/database';
-import { sendTelegramMessage } from '../lib/telegram';
+import { addTokenToQueue } from '../../lib/database';
+import { sendTelegramMessage } from '../../lib/telegram';
 
 // Initialize Solana connection
 const connection = new Connection(config.QUICKNODE_RPC_URL);
