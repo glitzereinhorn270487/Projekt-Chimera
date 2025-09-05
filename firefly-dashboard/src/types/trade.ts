@@ -38,6 +38,8 @@ export interface PnlSummary {
   spark: number[];
 }
 
+export type Trade = TradeRow;
+
 /** Für Capital-Tile */
 export interface Capital {
   usd: number;
