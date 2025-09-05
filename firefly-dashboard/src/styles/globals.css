@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design Tokens (Blueprint) */
+:root{
+  --c-sky: 199 100% 60%;
+  --c-cyan:185 72% 52%;
+  --c-graphite:217 19% 27%;
+  --c-ink:220 17% 15%;
+}
+
+/* Glass utilities */
+.glass {
+  @apply bg-[hsla(var(--c-ink),0.55)] backdrop-blur-xl border border-white/10 rounded-3xl shadow-glass;
+}
+.glow-cyan { box-shadow: 0 0 30px hsla(var(--c-cyan),0.15); }
+.perspective-1200 { perspective: 1200px; }
+.rotate-y-180 { transform: rotateY(180deg); }

@@ -1,18 +1,23 @@
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   darkMode: ["class"],
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  content: ["./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-      }
-    }
+        ink: "hsl(var(--c-ink))",
+        graphite: "hsl(var(--c-graphite))",
+        sky: "hsl(var(--c-sky))",
+        cyan: "hsl(var(--c-cyan))",
+      },
+      boxShadow: {
+        glass: "0 8px 40px -12px rgba(0,0,0,0.45)",
+      },
+      borderRadius: { xl: "1rem", "2xl": "1.25rem", "3xl": "1.5rem" },
+      backdropBlur: { xl: "20px" },
+    },
   },
-  plugins: [],
-} satisfies Config;
+  plugins: [require("@tailwindcss/forms"), require("tailwindcss-animate")],
+};
+export default config;

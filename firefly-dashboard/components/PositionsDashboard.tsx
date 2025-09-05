@@ -27,6 +27,19 @@ export default function PositionsDashboard() {
     setPrices(prices);
   }
 
+  async function fetchPrices(keys: string[], opts?: { chain?: string }) {
+    const u = new URL("/api/prices", typeof window === "undefined" ? "http://localhost" : window.location.origin);
+    // Du kannst entweder echte Adressen oder Symbolnamen übergeben
+    // (die API erkennt beides):
+    u.searchParams.set("k", keys.join(","));
+    if (opts?.chain) u.searchParams.set("chain", opts.chain);
+    const r = await fetch(u.toString(), { cache: "no-store" });
+    if (!r.ok) throw new Error("price fetch failed");
+    const { prices } = (await r.json()) as { prices: Record<string, number | null> };
+    return prices;
+  }
+  
+
   async function addPosition() {
     await fetch("/api/managePositions", {
       method: "POST",
