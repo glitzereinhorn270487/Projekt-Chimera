@@ -1,6 +1,4 @@
-// firefly-dashboard/src/components/ui/panel.tsx
 import * as React from "react";
-import { cn } from "@/lib/utils";
 
 export function Panel({
   title,
@@ -14,10 +12,18 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={cn("glass glow-cyan p-6 md:p-8", className)}>
-      {title && (
+    <section
+      className={
+        "glass glow-cyan p-6 md:p-8 rounded-3xl " + (className ?? "")
+      }
+    >
+      {(title || actions) && (
         <header className="flex items-center justify-between mb-4">
-          <h3 className="text-sky-100/90 tracking-wide">{title}</h3>
+          {title ? (
+            <h3 className="text-sky-100/90 tracking-wide">{title}</h3>
+          ) : (
+            <span />
+          )}
           <div className="flex gap-2">{actions}</div>
         </header>
       )}
@@ -25,3 +31,4 @@ export function Panel({
     </section>
   );
 }
+export default Panel;

@@ -1,10 +1,6 @@
 "use client";
-import * as React from "react";
 import { Toaster } from "sonner";
 
-// kleiner Typ-Adapter, falls dein React-Typsetup meckert
-const AnyToaster = Toaster as unknown as React.FC<any>;
-
-export function ToastProvider() {
-  return <AnyToaster richColors position="top-right" />;
+export default function ToastProvider() {
+  return <Toaster richColors theme="dark" position="top-right" />;
 }

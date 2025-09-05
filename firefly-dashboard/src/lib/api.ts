@@ -1,18 +1,20 @@
 import { z } from "zod";
 
-/** Fetch-Helper (JSON oder Text) */
+/** Fetch-Helper (no-store) mit Text-Fallback für /api/tax/export */
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, { ...init, cache: "no-store" });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  const type = res.headers.get("content-type") || "";
-  if (type.includes("application/json")) {
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) {
     return (await res.json()) as T;
   }
-  // text fallback (z.B. Steuer-Export)
+  // z. B. Steuer-Export liefert text/plain
   return (await res.text()) as unknown as T;
 }
 
-/* ---------------- Zod-Schemas (defensiv) ---------------- */
+/* ===========================
+   Zod-Schemas (defensiv)
+   =========================== */
 
 export const TradeRowSchema = z.object({
   id: z.string(),
@@ -23,8 +25,11 @@ export const TradeRowSchema = z.object({
   marketcap: z.number(),
   volume24h: z.number(),
   initialInvestment: z.number(),
-  entryPrice: z.number(),
-  amount: z.number(),
+
+  // in Mock/DB teilweise vorhanden – daher optional, damit nichts crasht
+  entryPrice: z.number().optional(),
+  amount: z.number().optional(),
+
   pnlAbs: z.number(),
   pnlPct: z.number(),
   tax: z.number(),
@@ -32,18 +37,19 @@ export const TradeRowSchema = z.object({
   symbol: z.string().optional(),
   address: z.string().optional(),
 });
-
 export const TradeRowsSchema = z.array(TradeRowSchema);
 
 export const DetailSchema = TradeRowSchema.extend({
-  pumpDumpProb: z.number(), // 0..1
-  fomoScore: z.number(),    // 0..100
-  riskScore: z.number(),    // 0..100
+  pumpDumpProb: z.number(),
+  fomoScore: z.number(),
+  riskScore: z.number(),
   telegramUrl: z.string().optional(),
   dexScreenerUrl: z.string().optional(),
   holders: z.number(),
   tx: z.object({ buys: z.number(), sells: z.number(), total: z.number() }),
-  topWallets: z.array(z.object({ address: z.string(), concentrationPct: z.number() })),
+  topWallets: z.array(
+    z.object({ address: z.string(), concentrationPct: z.number() })
+  ),
 });
 
 export const PnlSummarySchema = z.object({
@@ -57,13 +63,16 @@ export const CapitalSchema = z.object({
   sol: z.number(),
 });
 
-/**
- * Preise: Map von Token-Key (Adresse oder Symbol) -> number|null
- * KORREKT: z.record(KeyType, ValueType)
+/** Map<symbol, Map<exchange, price|null>>
+ *  z.B. { SOL: { binance: 123.4, okx: null } }
  */
-export const PricesSchema = z.record(z.string(), z.number().nullable());
+export const PricesSchema = z.record(
+  z.string(),                              // outer key: symbol
+  z.record(z.string(), z.number().nullable()) // inner key: exchange -> price|null
+);
 
-/* Optionale TS-Typen daraus ableiten */
+
+/* ===== Optionale abgeleitete Typen ===== */
 export type TradeRow = z.infer<typeof TradeRowSchema>;
 export type TradeDetail = z.infer<typeof DetailSchema>;
 export type PnlSummary = z.infer<typeof PnlSummarySchema>;

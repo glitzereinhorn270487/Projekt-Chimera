@@ -1,15 +1,14 @@
 "use client";
-
 import useSWR from "swr";
 import { Panel } from "@/components/ui/panel";
 import { api, CapitalSchema } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 
-export function CapitalTile() {
+export default function CapitalTile() {
   const { data, isLoading, error, mutate } = useSWR(
     "/api/capital",
     (p) => api(p).then(CapitalSchema.parse),
-    { refreshInterval: 15_000 } // live refresh
+    { refreshInterval: 15_000, revalidateOnFocus: false }
   );
 
   return (
@@ -25,7 +24,7 @@ export function CapitalTile() {
       }
     >
       {error && (
-        <div className="text-red-300 text-sm">Could not load capital.</div>
+        <div className="text-red-300 text-sm">Konnte Capital nicht laden.</div>
       )}
       <div className="flex items-end gap-8">
         <div>
@@ -41,12 +40,14 @@ export function CapitalTile() {
             SOL
           </div>
           <div className="text-3xl font-semibold">
-            {isLoading || !data ? "…" : data.sol.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+            {isLoading || !data
+              ? "…"
+              : data.sol.toLocaleString(undefined, {
+                  maximumFractionDigits: 4,
+                })}
           </div>
         </div>
       </div>
     </Panel>
   );
 }
-
-export default CapitalTile;

@@ -18,8 +18,8 @@ export function useTrades() {
     refetchInterval: 10_000,
   });
 
-  const open = data.filter((t) => t.status === "open") as Trade[];
-  const closed = data.filter((t) => t.status === "closed") as Trade[];
+  const open = data.filter((t: { status: string; }) => t.status === "open") as Trade[];
+  const closed = data.filter((t: { status: string; }) => t.status === "closed") as Trade[];
 
   return { open, closed };
 }

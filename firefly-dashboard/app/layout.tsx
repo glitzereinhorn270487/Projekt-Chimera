@@ -1,18 +1,11 @@
-import "./globals.css";
-import type { Metadata } from "next";
-import { ToastProvider } from "../src/components/ToastProvider";
-
-export const metadata: Metadata = {
-  title: "Firefly Dashboard",
-  description: "Control center",
-};
+import ToastProvider from "@/components/ToastProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className="dark">
-      <body>
-        {children}
+    <html lang="en" className="h-full">
+      <body className="min-h-screen bg-[hsl(var(--c-ink))] text-white">
         <ToastProvider />
+        {children}
       </body>
     </html>
   );
