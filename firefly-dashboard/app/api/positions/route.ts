@@ -1,14 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/database";
+import { NextResponse } from "next/server";
+import { addTrade, getStore } from "../_db";
 
-export async function GET(req: NextRequest) {
-  const status = (new URL(req.url).searchParams.get("status") ?? "open") as "open" | "closed";
-  const rows = await db.getTradesByStatus(status);
-  return NextResponse.json(rows);
+export async function GET() {
+  return NextResponse.json(getStore().open);
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   const body = await req.json();
-  const created = await db.addTrade(body);
-  return NextResponse.json({ ok: true, trade: created });
+  addTrade(body);
+  return NextResponse.json({ ok: true });
 }

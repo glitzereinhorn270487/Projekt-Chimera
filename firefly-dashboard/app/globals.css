@@ -2,12 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design Tokens */
 :root{
   --c-sky: 199 100% 60%;
   --c-cyan:185 72% 52%;
   --c-graphite:217 19% 27%;
-  --c-ink:220 17% 15%;
+  --c-ink:220 17% 12%;
 }
 
-.glass { @apply bg-[hsla(var(--c-ink),0.55)] backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.45)]; }
-.glow-cyan { box-shadow: 0 0 30px hsla(var(--c-cyan),0.15); }
+html,body{ height:100%; }
+
+body{
+  @apply text-slate-100;
+  background:
+    radial-gradient(1200px 800px at 20% -10%, hsla(var(--c-cyan),0.22), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, hsla(var(--c-sky),0.18), transparent 50%),
+    linear-gradient(180deg, hsl(var(--c-ink)) 0%, #0b1220 60%, #070c18 100%);
+}
+
+/* Glass + Glow */
+.glass{
+  @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.45)];
+}
+.glow-cyan{ box-shadow: 0 0 30px hsla(var(--c-cyan),0.15); }
+.section-title{ @apply text-sky-100/80 tracking-wide; }

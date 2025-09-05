@@ -5,6 +5,7 @@ import { useTrades } from "../../hooks/use-trades";
 import { TradeTable } from "../../components/trades/trade-table";
 import { closedPositionsColumns } from "../../components/trades/columns";
 import type { Trade } from "@/types/trade";
+import { useState } from "react";
 
 export function ClosedPositionsPanel() {
   const trades = useTrades();
