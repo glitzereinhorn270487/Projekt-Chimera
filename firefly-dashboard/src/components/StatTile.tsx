@@ -1,12 +1,19 @@
 "use client";
 import React from "react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
-import { fmtUsd, fmtPct } from "@/lib/format";
 
 export default function StatTile({
   title, value, sub, spark,
 }: { title: string; value: number; sub?: number; spark?: number[] }) {
   const data = (spark ?? []).map((y, i) => ({ i, y }));
+  function fmtUsd(value: number): React.ReactNode {
+    throw new Error("Function not implemented.");
+  }
+
+  function fmtPct(sub: number): React.ReactNode {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="glass glow-cyan p-4 rounded-3xl">
       <div className="text-sm text-white/70">{title}</div>

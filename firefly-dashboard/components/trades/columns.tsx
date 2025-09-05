@@ -1,7 +1,7 @@
-// firefly-dashboard/components/trades/columns.ts
+// firefly-dashboard/components/trades/columns.tsx
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Trade } from "@/types/trade";
-import { formatCurrency, fmtPct, compactNumber } from "@/lib/format";
+import { formatCurrency, formatPct, compactNumber } from "@/lib/format";
 
 export const openPositionsColumns: ColumnDef<Trade, any>[] = [
   { accessorKey: "chain", header: "Chain" },
@@ -31,22 +31,7 @@ export const openPositionsColumns: ColumnDef<Trade, any>[] = [
   {
     accessorKey: "pnlPct",
     header: "PnL %",
-    cell: ({ getValue }) => fmtPct(getValue<number>()),
-  },
-  {
-    id: "actions",
-    header: "",
-    enableSorting: false,
-    cell: ({ row }) => (
-      <form action={`/api/positions/${row.original.id}/close`} method="post">
-        <button
-          type="submit"
-          className="px-2 py-1 rounded-md bg-white/10 hover:bg-white/20"
-        >
-          Close
-        </button>
-      </form>
-    ),
+    cell: ({ getValue }) => formatPct(getValue<number>()),
   },
 ];
 
@@ -67,6 +52,6 @@ export const closedPositionsColumns: ColumnDef<Trade, any>[] = [
   {
     accessorKey: "pnlPct",
     header: "PnL %",
-    cell: ({ getValue }) => fmtPct(getValue<number>()),
+    cell: ({ getValue }) => formatPct(getValue<number>()),
   },
 ];
