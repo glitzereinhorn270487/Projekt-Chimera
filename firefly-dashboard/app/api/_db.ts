@@ -6,7 +6,7 @@ type Store = {
   closed: Trade[];
 };
 
-let store: Store = {
+export let store: Store = {
   engineRunning: false,
   open: [
     // Beispiel-Dummy; kann leer bleiben

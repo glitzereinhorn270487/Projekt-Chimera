@@ -28,6 +28,16 @@ body {
 }
 
 /* ===== Glass Panels ===== */
+/* in app/globals.css */
+.glass::before{
+  content:"";
+  position:absolute; inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background: linear-gradient(135deg, rgba(255,255,255,.06), transparent 35%, transparent 65%, rgba(255,255,255,.04));
+  opacity:.5;
+}
+
 .glass {
   @apply bg-[hsla(var(--c-ink),0.55)] backdrop-blur-xl border border-white/10 rounded-3xl shadow-glass;
 }
