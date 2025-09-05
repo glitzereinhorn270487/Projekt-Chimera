@@ -1,39 +1,25 @@
+// firefly-dashboard/hooks/use-trades.ts
+"use client";
 
-import useSWR from 'swr';
-
-// Define the structure of our trade data based on the dummy API
-export interface Trade {
-  id: string;
-  tokenSymbol: string;
-  tokenAddress: string;
-  amount: number;
-  entryPrice: number;
-  currentPrice?: number; // Only for open trades
-  exitPrice?: number; // Only for closed trades
-  pnl: number;
-  pnlPercentage: number;
-  timestamp?: number; // Open trade entry time
-  entryTimestamp?: number; // Closed trade entry time
-  exitTimestamp?: number; // Closed trade exit time
-}
-
-export interface TradesData {
-  open: Trade[];
-  closed: Trade[];
-}
-
-// The fetcher function for SWR
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { useQuery } from "@tanstack/react-query";
+import { api, TradeRowsSchema } from "@/lib/api";
+import type { Trade } from "@/types/trade";
+export type { Trade }; // <- re-export, keine eigene Definition!
 
 export function useTrades() {
-  const { data, error, isLoading } = useSWR<TradesData>('/api/trades', fetcher, {
-    // Optional: Refresh data every 30 seconds
-    refreshInterval: 30000,
+  const { data = [] } = useQuery({
+    queryKey: ["positions", "all"],
+    // Beispiel: du kannst auch getrennte Endpoints verwenden – Hauptsache Schema-validiert
+    queryFn: async () => {
+      // Hole *alle* Positionen und filtere lokal (einfacher Cache/Refetch)
+      const all = await api<unknown>("/api/positions?status=all");
+      return TradeRowsSchema.parse(all);
+    },
+    refetchInterval: 10_000,
   });
 
-  return {
-    trades: data,
-    isLoading,
-    isError: error,
-  };
+  const open = data.filter((t) => t.status === "open") as Trade[];
+  const closed = data.filter((t) => t.status === "closed") as Trade[];
+
+  return { open, closed };
 }
