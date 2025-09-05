@@ -1,23 +1,21 @@
+// firefly-dashboard/components/ui/panel.tsx
 import * as React from "react";
 
 type PanelProps = {
   title: string;
   children: React.ReactNode;
   actions?: React.ReactNode;
-  className?: string; // <— neu
+  className?: string;
 };
 
-export function Panel({ title, children, actions, className }: PanelProps) {
-  const base = "glass glow-cyan p-6 md:p-8";
+export function Panel({ title, children, actions, className = "" }: PanelProps) {
   return (
-    <section className={`${base} ${className ?? ""}`}>
+    <section className={`glass neon-ring p-6 md:p-8 ${className}`}>
       <header className="flex items-center justify-between mb-4">
-        <h3 className="text-sky-100/90 tracking-wide">{title}</h3>
+        <h3 className="t-soft tracking-wide">{title}</h3>
         <div className="flex gap-2">{actions}</div>
       </header>
       {children}
     </section>
   );
 }
-
-export default Panel; // optionaler Default-Export für flexible Imports

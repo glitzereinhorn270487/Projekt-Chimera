@@ -4,26 +4,26 @@ export type Chain = "Solana" | "Ethereum" | "BSC" | "Polygon" | string;
 export interface TradeRow {
   id: string;
   chain: Chain;
-  category: string;          // z.B. "Meme", "DeFi", ...
-  narrative: string;         // Story/These
-  scoreX: number;            // 0-100
-  marketcap: number;         // USD
-  volume24h: number;         // USD
-  initialInvestment: number; // USD
-  entryPrice: number;        // USD pro Token
-  amount: number;            // Anzahl Token
-  pnlAbs: number;            // USD
-  pnlPct: number;            // %
-  tax: number;               // USD (oder % – je nach Modell)
+  category: string;
+  narrative: string;
+  scoreX: number;
+  marketcap: number;
+  volume24h: number;
+  initialInvestment: number;
+  entryPrice: number;
+  amount: number;
+  pnlAbs: number;
+  pnlPct: number;
+  tax: number;
   status: "open" | "closed";
   symbol?: string;
   address?: string;
 }
 
 export interface TradeDetail extends TradeRow {
-  pumpDumpProb: number; // 0-1
-  fomoScore: number;    // 0-100
-  riskScore: number;    // 0-100
+  pumpDumpProb: number;
+  fomoScore: number;
+  riskScore: number;
   telegramUrl?: string;
   dexScreenerUrl?: string;
   holders: number;
@@ -31,5 +31,15 @@ export interface TradeDetail extends TradeRow {
   topWallets: { address: string; concentrationPct: number }[];
 }
 
-// Komfort-Alias, falls irgendwo `Trade` erwartet wird:
-export type Trade = TradeRow;
+/** Für PnL-Tile */
+export interface PnlSummary {
+  pnlAbs: number;
+  pnlPct: number;   // 0..1 (z.B. 0.1234 = 12.34 %)
+  spark: number[];
+}
+
+/** Für Capital-Tile */
+export interface Capital {
+  usd: number;
+  sol: number;
+}

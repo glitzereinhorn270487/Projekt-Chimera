@@ -1,28 +1,81 @@
+/* firefly-dashboard/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Design Tokens */
+/* ===== Design Tokens ===== */
 :root{
   --c-sky: 199 100% 60%;
   --c-cyan:185 72% 52%;
   --c-graphite:217 19% 27%;
-  --c-ink:220 17% 12%;
+  --c-ink:220 17% 15%;
+  --glow-cyan: 185 100% 60%;
+  --glow-sky: 199 100% 62%;
+
+  /* Dark background scale */
+  --bg-0: 222 47% 7%;  /* page */
+  --bg-1: 217 33% 9%;  /* panels layer */
+  --bg-2: 216 24% 12%; /* deeper */
 }
 
-html,body{ height:100%; }
-
-body{
-  @apply text-slate-100;
-  background:
-    radial-gradient(1200px 800px at 20% -10%, hsla(var(--c-cyan),0.22), transparent 60%),
-    radial-gradient(900px 600px at 100% 0%, hsla(var(--c-sky),0.18), transparent 50%),
-    linear-gradient(180deg, hsl(var(--c-ink)) 0%, #0b1220 60%, #070c18 100%);
+html, body { height:100%; }
+body {
+  @apply bg-[hsl(var(--bg-0))] text-white/90 antialiased;
+  background-image:
+    radial-gradient(1100px 650px at 15% -10%, hsla(var(--c-cyan)/0.18), transparent 60%),
+    radial-gradient(900px 550px at 85% -10%, hsla(var(--c-sky)/0.14), transparent 60%),
+    radial-gradient(1200px 800px at 50% 120%, hsla(var(--c-cyan)/0.10), transparent 60%);
 }
 
-/* Glass + Glow */
-.glass{
-  @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.45)];
+/* ===== Glass Panels ===== */
+.glass {
+  @apply bg-[hsla(var(--c-ink),0.55)] backdrop-blur-xl border border-white/10 rounded-3xl shadow-glass;
 }
-.glow-cyan{ box-shadow: 0 0 30px hsla(var(--c-cyan),0.15); }
-.section-title{ @apply text-sky-100/80 tracking-wide; }
+.glow-cyan { box-shadow: 0 0 30px hsla(var(--glow-cyan),0.12); }
+
+/* subtle ring that brightens on hover */
+.neon-ring {
+  @apply ring-1 ring-cyan/20 hover:ring-cyan/35 transition-shadow;
+}
+
+/* Text helpers for better contrast on dark */
+.t-muted { @apply text-white/60; }
+.t-soft { @apply text-white/80; }
+.t-strong { @apply text-white; }
+
+/* Small glass skeleton (loading) */
+.glass-skeleton {
+  @apply bg-white/5 rounded-xl animate-pulse;
+}
+
+/* Buttons */
+.btn {
+  @apply inline-flex items-center gap-2 rounded-xl px-3 py-1.5 ring-1 transition
+         ring-white/15 bg-white/5 hover:bg-white/8;
+}
+.btn-primary {
+  @apply text-cyan-100 ring-cyan/30 hover:ring-cyan/50 bg-cyan/10;
+}
+
+/* Tables on glass */
+.table-glass {
+  @apply w-full text-sm;
+}
+.table-glass th {
+  @apply t-soft font-medium sticky top-0 bg-[hsla(var(--c-ink),0.65)] backdrop-blur-xl;
+}
+.table-glass td {
+  @apply t-soft;
+}
+.table-row {
+  @apply hover:bg-white/5 transition;
+}
+
+/* Ampel circles (neon glow) */
+.amp-dot {
+  @apply w-10 h-10 rounded-full;
+  filter: drop-shadow(0 0 16px rgba(0,0,0,.35));
+}
+.amp-red   { background: radial-gradient(circle at 35% 35%, #ff8080, #ff3b3b 60%, #a50000 100%); box-shadow: 0 0 26px rgba(255,59,59,.35); }
+.amp-yellow{ background: radial-gradient(circle at 35% 35%, #ffe48a, #ffd232 60%, #a87a00 100%); box-shadow: 0 0 26px rgba(255,210,50,.30); }
+.amp-green { background: radial-gradient(circle at 35% 35%, #90f0bf, #2ee69a 60%, #009a5a 100%); box-shadow: 0 0 26px rgba(46,230,154,.30); }

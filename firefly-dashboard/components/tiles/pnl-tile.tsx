@@ -1,45 +1,26 @@
+// firefly-dashboard/components/tiles/pnl-tile.tsx
 "use client";
-
-import { useEffect, useState } from "react";
 import { Panel } from "@/components/ui/panel";
-import { api, PnlSummarySchema } from "@/lib/api";
-import { formatCurrency, formatPct, pnlClass } from "@/lib/format";
-
-type Pnl = { pnlAbs: number; pnlPct: number; spark: number[] };
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import type { PnlSummary } from "@/types/trade";
 
 export function PnlTile() {
-  const [data, setData] = useState<Pnl | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const raw = await api<unknown>("/api/pnl/summary?range=day");
-        const parsed = PnlSummarySchema.parse(raw);
-        if (alive) setData(parsed);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const { data } = useQuery<PnlSummary>({
+    queryKey: ["pnl", "today"],
+    queryFn: () => api<PnlSummary>("/api/pnl/summary?range=day"),
+  });
 
   return (
-    <Panel title="PnL (today)">
-      {loading && <div className="opacity-60 text-sm">Loading…</div>}
-      {!loading && data && (
-        <div className="flex items-baseline gap-4">
-          <div className={`text-2xl font-semibold ${pnlClass(data.pnlAbs)}`}>
-            {formatCurrency(data.pnlAbs)}
-          </div>
-          <div className={`text-sm ${pnlClass(data.pnlAbs)}`}>
-            {formatPct(data.pnlPct)}
-          </div>
-        </div>
-      )}
+    <Panel title="PnL (today)" className="min-h-[140px]">
+      <div className="text-3xl md:text-4xl font-semibold text-emerald-300">
+        {data ? `$${data.pnlAbs.toLocaleString()}` : "—"}
+        {data && (
+          <span className="ml-2 text-emerald-400/80 text-base align-baseline">
+            +{(data.pnlPct * 100).toFixed(2)}%
+          </span>
+        )}
+      </div>
     </Panel>
   );
 }

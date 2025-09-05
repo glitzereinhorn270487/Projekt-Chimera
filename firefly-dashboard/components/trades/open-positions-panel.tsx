@@ -1,6 +1,6 @@
 "use client";
 
-import Panel from "../ui/panel";                // Default-Export (s. Panel-Update unten)
+import { Panel } from "@/components/ui/panel";               // Default-Export (s. Panel-Update unten)
 import { openPositionsColumns } from "./columns";
 import { TradeTable } from "./trade-table";     // falls dein trade-table default exportiert, -> `import TradeTable from "./trade-table"`
 import AddPositionForm from "./add-position-form";

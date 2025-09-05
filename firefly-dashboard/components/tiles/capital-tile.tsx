@@ -1,41 +1,22 @@
+// firefly-dashboard/components/tiles/capital-tile.tsx
 "use client";
-
-import { useEffect, useState } from "react";
 import { Panel } from "@/components/ui/panel";
-import { api, CapitalSchema } from "@/lib/api";
-import { formatCurrency } from "@/lib/format";
-
-type Capital = { usd: number; sol: number };
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import type { Capital } from "@/types/trade";
 
 export function CapitalTile() {
-  const [data, setData] = useState<Capital | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const raw = await api<unknown>("/api/capital");
-        const parsed = CapitalSchema.parse(raw);
-        if (alive) setData(parsed);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const { data } = useQuery<Capital>({
+    queryKey: ["capital"],
+    queryFn: () => api<Capital>("/api/capital"),
+  });
 
   return (
-    <Panel title="Capital">
-      {loading && <div className="opacity-60 text-sm">Loading…</div>}
-      {!loading && data && (
-        <div className="flex items-baseline gap-4">
-          <div className="text-2xl font-semibold">{formatCurrency(data.usd)}</div>
-          <div className="text-sm opacity-75">{data.sol.toFixed(2)} SOL</div>
-        </div>
-      )}
+    <Panel title="Capital" className="min-h-[140px]">
+      <div className="text-3xl md:text-4xl font-semibold t-strong">
+        {data ? `$${data.usd.toLocaleString()}` : "—"}
+        {data && <span className="ml-2 t-muted text-base align-baseline">{data.sol.toFixed(2)} SOL</span>}
+      </div>
     </Panel>
   );
 }

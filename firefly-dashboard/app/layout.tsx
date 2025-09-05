@@ -1,19 +1,21 @@
-import type { Metadata } from "next";
+// firefly-dashboard/app/layout.tsx
 import "./globals.css";
-import ReactQueryProvider from "@/providers/react-query";
-import  ToastProvider  from "@/components/ToastProvider"; // falls vorhanden
+import ToastProvider from "@/components/ToastProvider";
 
-export const metadata: Metadata = { title: "Firefly", description: "Dashboard" };
+export const metadata = { title: "Firefly" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de">
+    <html lang="en" className="dark">
       <body>
-        <ReactQueryProvider>
-          {/* Toaster optional */}
-          <ToastProvider />
+        {/* Optional: very subtle noise layer */}
+        {/* <div className="pointer-events-none fixed inset-0 opacity-[0.03]" style={{backgroundImage:"url('/noise.png')"}} /> */}
+
+        <main className="relative mx-auto max-w-7xl px-4 md:px-8 py-8 space-y-6">
           {children}
-        </ReactQueryProvider>
+        </main>
+
+        <ToastProvider />
       </body>
     </html>
   );
