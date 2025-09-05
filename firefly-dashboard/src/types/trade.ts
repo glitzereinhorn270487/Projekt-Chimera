@@ -8,21 +8,26 @@ export interface TradeRow {
   scoreX: number;
   marketcap: number;
   volume24h: number;
+
+  // ergänzt, damit Seeds & Tabellen zusammenpassen
   initialInvestment: number;
-  entryPrice: number;      // für Live-PnL
-  amount: number;          // Stückzahl/Token
+  entryPrice: number;       // ✅ neu
+  amount: number;           // ✅ neu
+
   pnlAbs: number;
   pnlPct: number;
   tax: number;
   status: "open" | "closed";
-  symbol?: string;         // z.B. "WIF" / Dexsymbol
-  address?: string;        // Token Address (für Live-Preis)
+
+  // optional: für Preis-Lookup
+  symbol?: string;
+  address?: string;
 }
 
 export interface TradeDetail extends TradeRow {
-  pumpDumpProb: number;
-  fomoScore: number;
-  riskScore: number;
+  pumpDumpProb: number;   // 0..1
+  fomoScore: number;      // 0..100
+  riskScore: number;      // 0..100
   telegramUrl?: string;
   dexScreenerUrl?: string;
   holders: number;

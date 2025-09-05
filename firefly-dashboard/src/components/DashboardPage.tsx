@@ -1,10 +1,10 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import OnOffButton from "./OnOffButton";
-import SettingsMenu from "./SettingsMenu";
+import SettingsMenu from "../../components/SettingsMenu";
 import StatTile from "./StatTile";
 import { Panel } from "./Panel";
-import PositionsTable from "./PositionsTable/PositionsTable";
+import { PositionsTable } from "@/components/PositionsTable/PositionsTable";
 import AmpelPanel from "./AmpelPanel";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, PnlSummarySchema, CapitalSchema, TradeRowSchema } from "@/lib/api";

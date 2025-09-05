@@ -1,11 +1,27 @@
-import { NextResponse } from "next/server";
-import { getStore } from "../../_db";
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/database";
 
-export async function GET() {
-  const s = await getStore();
-  const totalInvest = s.open.reduce((a,b)=>a+b.initialInvestment,0);
-  const spark = Array.from({length:20},()=> (Math.random()-0.5)*2).reduce<number[]>((acc,x)=>{ acc.push((acc.at(-1)??0)+x); return acc;},[]);
-  const pnlAbs = spark.at(-1)! * 10; // demo
-  const pnlPct = totalInvest ? (pnlAbs/Math.max(1,totalInvest))*100 : 0;
-  return NextResponse.json({ pnlAbs, pnlPct, spark });
+type Range = "day" | "week" | "month" | "all";
+
+export async function GET(req: NextRequest) {
+  const range = (new URL(req.url).searchParams.get("range") ?? "day") as Range;
+
+  const [open, closed] = await Promise.all([
+    db.getTradesByStatus("open"),
+    db.getTradesByStatus("closed"),
+  ]);
+  const all = [...open, ...closed];
+
+  // defensiv & typisiert:
+  const pnlAbs = all.reduce((acc: number, t) => acc + (t.pnlAbs ?? 0), 0);
+  const invested = all.reduce((acc: number, t) => acc + (t.initialInvestment ?? 0), 0);
+  const pnlPct = invested > 0 ? (pnlAbs / invested) * 100 : 0;
+
+  // simple Sparkline (12 Punkte) – später durch echte History ersetzen
+  const spark = all.slice(0, 12).map((t) => {
+    const v = Number.isFinite(t.pnlPct) ? t.pnlPct : 0;
+    return Math.max(-100, Math.min(100, v));
+  });
+
+  return NextResponse.json({ pnlAbs, pnlPct, spark, range });
 }
