@@ -1,5 +1,5 @@
 
-import { Panel } from "@/components/ui/panel";
+import { Panel } from "../../components/ui/panel";
 import { Flame } from "lucide-react";
 
 export function TopBar() {
