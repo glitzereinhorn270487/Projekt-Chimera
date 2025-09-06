@@ -14,9 +14,12 @@ export type UISwitchProps = {
   className?: string;
 };
 
+const Root = SwitchPr.Root as unknown as React.ComponentType<any>;
+const Thumb = SwitchPr.Thumb as unknown as React.ComponentType<any>;
+
 const SwitchImpl = React.forwardRef<HTMLButtonElement, UISwitchProps>(
   ({ className, ...props }, ref) => (
-    <SwitchPr.Root
+    <Root
       ref={ref}
       className={cn(
         "relative inline-flex h-6 w-11 items-center rounded-full bg-white/10 ring-1 ring-white/15",
@@ -25,15 +28,15 @@ const SwitchImpl = React.forwardRef<HTMLButtonElement, UISwitchProps>(
       )}
       {...props}
     >
-      <SwitchPr.Thumb
+      <Thumb
         className={cn(
           "block h-5 w-5 translate-x-0.5 rounded-full bg-white/90 transition-transform",
           "data-[state=checked]:translate-x-[22px]"
         )}
       />
-    </SwitchPr.Root>
+    </Root>
   )
 );
+SwitchImpl.displayName = "Switch";
 
-export const Switch =
-  SwitchImpl as unknown as React.ComponentType<UISwitchProps>;
+export const Switch = SwitchImpl as unknown as React.ComponentType<UISwitchProps>;

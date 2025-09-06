@@ -6,19 +6,20 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/** Primitive Re-Exports – we cast to ComponentType<any> to avoid JSX type quirks */
+/** Primitive re-exports (gecastet, damit TS/JSX nicht meckert) */
 export const Sheet = DialogPrimitive.Root as unknown as React.ComponentType<any>;
-export const SheetTrigger =
-  DialogPrimitive.Trigger as unknown as React.ComponentType<any>;
-export const SheetClose =
-  DialogPrimitive.Close as unknown as React.ComponentType<any>;
+export const SheetTrigger = DialogPrimitive.Trigger as unknown as React.ComponentType<any>;
+export const SheetClose = DialogPrimitive.Close as unknown as React.ComponentType<any>;
+const SheetPortal = DialogPrimitive.Portal as unknown as React.ComponentType<any>;
 
-const SheetPortal =
-  DialogPrimitive.Portal as unknown as React.ComponentType<any>;
+/** Radix-Primitives einmal als any casten und danach in JSX verwenden */
+const OverlayPrimitive = DialogPrimitive.Overlay as unknown as React.ComponentType<any>;
+const ContentPrimitive = DialogPrimitive.Content as unknown as React.ComponentType<any>;
+const ClosePrimitive = DialogPrimitive.Close as unknown as React.ComponentType<any>;
 
-const OverlayImpl = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+const SheetOverlay = React.forwardRef<HTMLDivElement, { className?: string }>(
   ({ className, ...props }, ref) => (
-    <DialogPrimitive.Overlay
+    <OverlayPrimitive
       ref={ref}
       className={cn(
         "fixed inset-0 bg-black/40 backdrop-blur-sm",
@@ -30,21 +31,20 @@ const OverlayImpl = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
     />
   )
 );
-/** cast to keep JSX happy in all TS setups */
-const SheetOverlay = OverlayImpl as unknown as React.ComponentType<any>;
+SheetOverlay.displayName = "SheetOverlay";
 
 type Side = "right" | "left";
-type SheetContentProps = {
+export type SheetContentProps = {
   side?: Side;
   className?: string;
   children?: React.ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-const ContentImpl = React.forwardRef<HTMLDivElement, SheetContentProps>(
+const SheetContentImpl = React.forwardRef<HTMLDivElement, SheetContentProps>(
   ({ side = "right", className, children, ...props }, ref) => (
     <SheetPortal>
       <SheetOverlay />
-      <DialogPrimitive.Content
+      <ContentPrimitive
         ref={ref}
         className={cn(
           "fixed top-0 h-full w-[380px] glass glow-cyan p-6",
@@ -59,19 +59,20 @@ const ContentImpl = React.forwardRef<HTMLDivElement, SheetContentProps>(
         {...props}
       >
         {children}
-        <DialogPrimitive.Close
+        <ClosePrimitive
           className="absolute right-3 top-3 inline-flex items-center justify-center rounded-full p-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10"
           aria-label="Schließen"
         >
           <X className="h-4 w-4" />
-        </DialogPrimitive.Close>
-      </DialogPrimitive.Content>
+        </ClosePrimitive>
+      </ContentPrimitive>
     </SheetPortal>
   )
 );
+SheetContentImpl.displayName = "SheetContent";
 
 export const SheetContent =
-  ContentImpl as unknown as React.ComponentType<SheetContentProps>;
+  SheetContentImpl as unknown as React.ComponentType<SheetContentProps>;
 
 export function SheetHeader({ children }: { children?: React.ReactNode }) {
   return <div className="mb-4">{children}</div>;
