@@ -8,6 +8,7 @@ import { OpenPositionsPanel } from "../../components/trades/open-positions-panel
 import { ClosedPositionsPanel } from "../../components/trades/closed-positions-panel";
 import { TaxExportPanel } from "components/tax/TaxExportPanel";
 import AmpelPanel from "@/components/AmpelPanel";
+import { SettingsSheet } from "@/components/settings/settings-sheet";
 
 export default function DashboardPage() {
   return (
@@ -17,7 +18,9 @@ export default function DashboardPage() {
         <h1 className="text-xl t-strong tracking-wide">Firefly</h1>
         <a href="#settings" className="btn btn-primary">Einstellungen</a>
       </div>
-
+      <div className="flex justify-end">
+        <SettingsSheet />
+      </div>
       {/* Top-Grid */}
       <div className="grid grid-cols-12 gap-6">
         {/* Agent links oben */}
