@@ -29,18 +29,21 @@ body {
 
 /* ===== Glass Panels ===== */
 /* in app/globals.css */
-.glass::before{
-  content:"";
-  position:absolute; inset:0;
-  border-radius:inherit;
-  pointer-events:none;
-  background: linear-gradient(135deg, rgba(255,255,255,.06), transparent 35%, transparent 65%, rgba(255,255,255,.04));
-  opacity:.5;
+/* dezente Reflexion auf allen Glass-Panels */
+.glass {
+  position: relative;
+  overflow: hidden;
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  border-radius: inherit;
+  background: radial-gradient(1200px 400px at -20% -20%, rgba(255,255,255,0.06), transparent 60%),
+              linear-gradient(120deg, rgba(255,255,255,.06), transparent 40%);
+  pointer-events: none;
 }
 
-.glass {
-  @apply bg-[hsla(var(--c-ink),0.55)] backdrop-blur-xl border border-white/10 rounded-3xl shadow-glass;
-}
 .glow-cyan { box-shadow: 0 0 30px hsla(var(--glow-cyan),0.12); }
 
 /* subtle ring that brightens on hover */

@@ -1,22 +1,35 @@
-import * as React from "react";
+"use client";
 
-type PanelProps = React.PropsWithChildren<{
-  title: string;
-  actions?: React.ReactNode;
-  className?: string; // <-- neu
-}> & React.HTMLAttributes<HTMLElement>;
+import { useState } from "react";
+import { Panel } from "@/components/ui/panel";
 
-export function Panel({ title, actions, className, children, ...rest }: PanelProps) {
-  const base = "glass glow-cyan p-6 md:p-8";
+export default function OnOffButton() {
+  const [running, setRunning] = useState(false);
+  const toggle = async () => {
+    setRunning((v) => !v); // optimistisch
+    try {
+      await fetch(`/api/engine/${running ? "stop" : "start"}`, { method: "POST" });
+    } catch {
+      // falls (noch) kein Backend: ignorieren
+    }
+  };
+
   return (
-    <section className={`${base} ${className ?? ""}`} {...rest}>
-      <header className="flex items-center justify-between mb-4">
-        <h3 className="text-sky-100/90 tracking-wide">{title}</h3>
-        <div className="flex gap-2">{actions}</div>
-      </header>
-      {children}
-    </section>
+    <Panel
+      title="Agent"
+      actions={
+        <span className={`text-sm ${running ? "text-green-400" : "text-red-400"}`}>
+          {running ? "Läuft" : "Gestoppt"}
+        </span>
+      }
+      className="relative"
+    >
+      <button className="btn btn-primary" onClick={toggle}>
+        {running ? "Agent stoppen" : "Agent starten"}
+      </button>
+      <p className="t-muted mt-3 text-sm">
+        Steuert die Trading-Engine (derzeit Stub – Backend kann später verdrahtet werden).
+      </p>
+    </Panel>
   );
 }
-
-export default Panel; // optionaler Default-Export für flexible Imports

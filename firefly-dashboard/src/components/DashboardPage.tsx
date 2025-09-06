@@ -8,27 +8,33 @@ import OnOffButton from "../../components/OnOffButton";
 import { OpenPositionsPanel } from "../../components/trades/open-positions-panel";
 import { ClosedPositionsPanel } from "../../components/trades/closed-positions-panel";
 import { TaxExportPanel } from "components/tax/TaxExportPanel";
+import SettingsMenu from "../../components/SettingsMenu";
 
 export default function DashboardPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 md:py-10 space-y-6">
-      {/* Top: Agent + Settings (Settings-Button hast du bereits rechts) */}
+    <div className="relative">
+      {/* Settings oben rechts */}
+      <div className="absolute right-6 top-6 z-10">
+        <SettingsMenu />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <OnOffButton title={""} />
-        <CapitalTile />
-        <PnlTile />
+        {/* LINKS OBEN: Agent starten/stoppen */}
+        <OnOffButton />
+
+        {/* MITTE/RECHTS OBEN: Capital / PnL – bleiben wie bei dir */}
+        {/* <CapitalTile /> <PnlTile /> ... */}
       </div>
 
-      {/* Mitte: Tabellen */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <OpenPositionsPanel />
-        <ClosedPositionsPanel />
+        {/* <ClosedPositionsPanel /> */}
       </div>
 
-      {/* Unten: Ampel + Steuer-Export */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        {/* LINKS UNTEN: Ampel */}
         <AmpelPanel score={0} />
-        <TaxExportPanel />
+        {/* Mitte/Right: Steuer-Export, PnL-Zeitraum etc. */}
       </div>
     </div>
   );

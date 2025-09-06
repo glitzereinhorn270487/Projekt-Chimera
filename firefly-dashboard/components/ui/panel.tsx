@@ -1,18 +1,18 @@
-// firefly-dashboard/components/ui/panel.tsx
+// components/ui/panel.tsx
 import * as React from "react";
 
-type PanelProps = {
+type Props = {
   title: string;
-  children: React.ReactNode;
   actions?: React.ReactNode;
-  className?: string;
+  children: React.ReactNode;
+  className?: string; // <- wichtig
 };
 
-export function Panel({ title, children, actions, className = "" }: PanelProps) {
+export function Panel({ title, actions, children, className }: Props) {
   return (
-    <section className={`glass neon-ring p-6 md:p-8 ${className}`}>
+    <section className={`glass glow-cyan p-6 md:p-8 ${className ?? ""}`}>
       <header className="flex items-center justify-between mb-4">
-        <h3 className="t-soft tracking-wide">{title}</h3>
+        <h3 className="text-sky-100/90 tracking-wide">{title}</h3>
         <div className="flex gap-2">{actions}</div>
       </header>
       {children}

@@ -1,33 +1,34 @@
-// firefly-dashboard/components/AmpelPanel.tsx
 "use client";
-import { Panel } from "@/components/ui/panel";
-import { motion } from "framer-motion";
 
-export default function AmpelPanel({ score = 55 }: { score?: number }) {
-  const state = score >= 70 ? "green" : score >= 40 ? "yellow" : "red";
+import { useState } from "react";
+import { Panel } from "@/components/ui/panel";
+
+type Amp = "red" | "yellow" | "green";
+
+export default function AmpelPanel() {
+  const [status, setStatus] = useState<Amp>("red");
+
+  const dot = (tone: Amp, label: string, cls: string) => (
+    <button
+      aria-label={label}
+      onClick={() => setStatus(tone)}
+      className={`amp-dot ${cls} transition-transform ${
+        status === tone ? "scale-110" : "scale-100"
+      }`}
+    />
+  );
+
   return (
-    <Panel title="Ampel" className="flex items-center gap-6">
+    <Panel title="Ampel – Marktlage">
       <div className="flex items-center gap-6">
-        <motion.div
-          className={`amp-dot amp-red ${state === "red" ? "animate-pulse-soft" : "opacity-40"}`}
-          animate={state === "red" ? { scale: [1, 1.04, 1] } : {}}
-          transition={{ duration: 1.8, repeat: Infinity }}
-        />
-        <motion.div
-          className={`amp-dot amp-yellow ${state === "yellow" ? "animate-pulse-soft" : "opacity-40"}`}
-          animate={state === "yellow" ? { scale: [1, 1.04, 1] } : {}}
-          transition={{ duration: 1.8, repeat: Infinity }}
-        />
-        <motion.div
-          className={`amp-dot amp-green ${state === "green" ? "animate-pulse-soft" : "opacity-40"}`}
-          animate={state === "green" ? { scale: [1, 1.04, 1] } : {}}
-          transition={{ duration: 1.8, repeat: Infinity }}
-        />
+        {dot("red", "Rot", "amp-red")}
+        {dot("yellow", "Gelb", "amp-yellow")}
+        {dot("green", "Grün", "amp-green")}
       </div>
-      <p className="t-muted">
-        {state === "green" && "Grün – Liquidity & Momentum gut, Risk moderat."}
-        {state === "yellow" && "Gelb – neutral; Beobachten & kleiner hebeln."}
-        {state === "red" && "Rot – Risiko hoch; nur defensive Trades."}
+      <p className="t-soft text-sm mt-4">
+        {status === "green" && "Grün: Liquidität & Momentum positiv, Risiko niedrig."}
+        {status === "yellow" && "Gelb: Neutral – abwarten, kleinere Positionen ok."}
+        {status === "red" && "Rot: Vorsicht – Risiko hoch, lieber pausieren."}
       </p>
     </Panel>
   );
