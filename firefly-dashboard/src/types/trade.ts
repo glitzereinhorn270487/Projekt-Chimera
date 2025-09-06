@@ -56,3 +56,26 @@ export interface Capital {
 
 // (optional) Live-Preise: z.B. { "SOL": { "USD": 155.2 } }
 export type Prices = Record<string, Record<string, number | null>>;
+
+export interface TradeRow {
+  id: string;
+  chain: Chain;
+  category: string;
+  narrative: string;
+  scoreX: number;
+  marketcap: number;
+  volume24h: number;
+  initialInvestment: number;
+  entryPrice: number;
+  amount: number;
+  pnlAbs: number;
+  pnlPct: number;
+  tax: number;
+  status: "open" | "closed";
+  symbol?: string;
+  address?: string;
+
+  // ➕ neu (nur bei geschlossenen Positionen befüllt)
+  closePrice?: number;
+  closedAt?: string | null; // ISO Datum optional
+}
