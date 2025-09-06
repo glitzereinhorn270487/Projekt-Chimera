@@ -7,6 +7,7 @@ type ClosedPosition = { token: string; amount: number; entryPrice: number; exitP
 export default function PositionsDashboard() {
   const [open, setOpen] = useState<Position[]>([]);
   const [closed, setClosed] = useState<ClosedPosition[]>([]);
+  const [refetch, setRefetch] = useState(false);
   const [prices, setPrices] = useState<Record<string, number>>({});
 
   // Auto-Refresh alle 20 Sekunden

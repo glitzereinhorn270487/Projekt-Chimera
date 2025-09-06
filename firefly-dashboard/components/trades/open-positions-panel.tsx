@@ -1,144 +1,115 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Panel } from "@/components/ui/panel";
 import { FlipPanel } from "@/components/FlipPanel";
 import type { TradeRow } from "@/types/trade";
 import { useTrades } from "../../hooks/use-trades";
+import { formatCurrency, formatPct } from "@/lib/format";
 
 export function OpenPositionsPanel() {
-  const trades = useTrades(); // { open, closed }
+  const router = useRouter();
+  const { open } = useTrades(); // <-- refetch entfernt
   const [selected, setSelected] = useState<TradeRow | null>(null);
 
-  const front = useMemo(() => {
-    if (!trades.open.length) {
-      return <div className="t-soft">Keine offenen Positionen.</div>;
-    }
-    return (
-      <div className="overflow-x-auto">
+  const table = (
+    <div className="p-4">
+      {open.length === 0 ? (
+        <p className="t-soft">Keine offenen Positionen.</p>
+      ) : (
         <table className="table-glass">
           <thead>
-            <tr>
-              <th className="text-left py-2 pr-4">Symbol</th>
-              <th className="text-right py-2 pr-4">Amount</th>
-              <th className="text-right py-2 pr-4">Entry $</th>
-              <th className="text-right py-2 pr-4">PnL $</th>
-              <th className="text-right py-2 pr-4">PnL %</th>
-              <th className="text-right py-2">Aktionen</th>
+            <tr className="t-soft">
+              <th className="text-left py-2">Chain</th>
+              <th className="text-left py-2">Symbol</th>
+              <th className="text-right py-2">Entry $</th>
+              <th className="text-right py-2">Amount</th>
+              <th className="text-right py-2">PnL $</th>
+              <th className="text-right py-2">PnL %</th>
+              <th className="py-2"></th>
             </tr>
           </thead>
           <tbody>
-            {trades.open.map((r) => (
-              <tr key={r.id} className="table-row">
-                <td className="py-2 pr-4">{r.symbol ?? r.chain}</td>
-                <td className="text-right py-2 pr-4">{r.amount}</td>
-                <td className="text-right py-2 pr-4">{r.entryPrice.toFixed(2)}</td>
-                <td className="text-right py-2 pr-4">{r.pnlAbs.toFixed(2)}</td>
-                <td className="text-right py-2 pr-4">
-                  {r.pnlPct.toFixed(2)}
-                  %
-                </td>
-                <td className="text-right py-2">
-                  <div className="flex justify-end gap-2">
-                    <button className="btn" onClick={() => setSelected(r)}>
-                      Details
-                    </button>
-                    <button
-                      className="btn btn-primary"
-                      onClick={async () => {
-                        await fetch(`/api/positions/${r.id}/close`, { method: "POST" });
-                        // später: refresh / invalidate
-                      }}
-                    >
-                      Position schließen
-                    </button>
-                  </div>
+            {open.map((r) => (
+              <tr
+                key={r.id}
+                className="table-row cursor-pointer"
+                onClick={() => setSelected(r)}
+              >
+                <td className="py-2">{r.chain}</td>
+                <td className="py-2">{r.symbol ?? "—"}</td>
+                <td className="py-2 text-right">{formatCurrency(r.entryPrice)}</td>
+                <td className="py-2 text-right">{r.amount}</td>
+                <td className="py-2 text-right">{formatCurrency(r.pnlAbs)}</td>
+                <td className="py-2 text-right">{formatPct(r.pnlPct)}</td>
+                <td className="py-2 text-right">
+                  <button
+                    className="btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelected(r);
+                    }}
+                  >
+                    Details
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-    );
-  }, [trades.open]);
-
-  const back = selected ? (
-    <div className="space-y-4">
-      <h4 className="font-semibold">
-        Detail: {selected.symbol ?? selected.chain}
-      </h4>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-        <div className="glass-skeleton p-3">
-          <div className="t-muted">Narrativ</div>
-          <div>{selected.narrative || "—"}</div>
-        </div>
-        <div className="glass-skeleton p-3">
-          <div className="t-muted">ScoreX</div>
-          <div>{selected.scoreX}</div>
-        </div>
-        <div className="glass-skeleton p-3">
-          <div className="t-muted">MarketCap</div>
-          <div>{selected.marketcap.toLocaleString()}</div>
-        </div>
-        <div className="glass-skeleton p-3">
-          <div className="t-muted">Volumen 24h</div>
-          <div>{selected.volume24h.toLocaleString()}</div>
-        </div>
-        <div className="glass-skeleton p-3">
-          <div className="t-muted">Einstieg</div>
-          <div>${selected.entryPrice.toFixed(2)}</div>
-        </div>
-        <div className="glass-skeleton p-3">
-          <div className="t-muted">Menge</div>
-          <div>{selected.amount}</div>
-        </div>
-      </div>
+      )}
     </div>
-  ) : (
-    <div className="t-soft">Wähle eine Zeile aus.</div>
+  );
+
+  const detail = (
+    <div className="p-6 space-y-3">
+      {!selected ? (
+        <p className="t-soft">Bitte eine Position wählen.</p>
+      ) : (
+        <>
+          <h4 className="t-strong text-lg">
+            {selected.symbol ?? "Asset"} · {selected.chain}
+          </h4>
+
+          <div className="grid grid-cols-2 gap-3 t-soft">
+            <Info label="Entry $" value={formatCurrency(selected.entryPrice)} />
+            <Info label="Amount" value={String(selected.amount)} />
+            <Info label="Marktkap." value={formatCurrency(selected.marketcap)} />
+            <Info label="Vol. 24h" value={formatCurrency(selected.volume24h)} />
+            <Info label="PnL $" value={formatCurrency(selected.pnlAbs)} />
+            <Info label="PnL %" value={formatPct(selected.pnlPct)} />
+          </div>
+
+          <div className="pt-2 flex gap-2">
+            <button
+              className="btn ring-red-400/40 bg-red-400/10 hover:bg-red-400/20 text-red-200"
+              onClick={async () => {
+                await fetch(`/api/positions/${selected.id}/close`, { method: "POST" });
+                setSelected(null);
+                router.refresh(); // <-- Seite neu validieren statt refetch
+              }}
+            >
+              Position schließen
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 
   return (
-    <Panel
-      title="Offene Positionen"
-      actions={
-        <form
-          className="hidden md:flex items-center gap-2"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const form = e.currentTarget as HTMLFormElement & {
-              symbol: HTMLInputElement;
-              amount: HTMLInputElement;
-              entry: HTMLInputElement;
-              chain: HTMLSelectElement;
-            };
-            const payload = {
-              symbol: form.symbol.value || "SOL",
-              amount: Number(form.amount.value || 0),
-              entry: Number(form.entry.value || 0),
-              chain: form.chain.value || "Solana",
-            };
-            await fetch("/api/positions", {
-              method: "POST",
-              headers: { "content-type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-            form.reset();
-            // später: refresh / invalidation
-          }}
-        >
-          <input name="symbol" placeholder="Symbol" className="input" defaultValue="SOL" />
-          <input name="amount" placeholder="Amount" className="input" defaultValue="100" />
-          <input name="entry" placeholder="Entry $" className="input" defaultValue="150.25" />
-          <select name="chain" className="input">
-            <option>Solana</option>
-            <option>Ethereum</option>
-          </select>
-          <button className="btn btn-primary" type="submit">Add Position</button>
-        </form>
-      }
-    >
-      <FlipPanel front={front} back={back} />
+    <Panel title="Offene Positionen">
+      <FlipPanel front={table} back={detail} />
     </Panel>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="glass p-3 rounded-2xl">
+      <div className="t-muted text-xs">{label}</div>
+      <div className="t-strong">{value}</div>
+    </div>
   );
 }

@@ -1,34 +1,48 @@
 "use client";
-import { motion } from "framer-motion";
-import { useState } from "react";
 
-export default function FlipPanel({
+import { motion } from "framer-motion";
+import { PropsWithChildren, useState } from "react";
+
+export function FlipPanel({
   front,
   back,
-}: {
+  flipped: extFlipped,
+  onToggle,
+  minHeight = "min-h-[420px]",
+}: PropsWithChildren<{
   front: React.ReactNode;
   back: React.ReactNode;
-}) {
-  const [flipped, setFlipped] = useState(false);
+  flipped?: boolean;
+  onToggle?: (v: boolean) => void;
+  minHeight?: string;
+}>) {
+  const [int, setInt] = useState(false);
+  const flipped = extFlipped ?? int;
+
+  function toggle() {
+    const v = !flipped;
+    setInt(v);
+    onToggle?.(v);
+  }
 
   return (
-    <div className="relative perspective-[1200px]">
+    <div className={`relative perspective-[1200px] ${minHeight}`}>
       <motion.div
-        className="glass [transform-style:preserve-3d] min-h-[420px]"
+        className="glass [transform-style:preserve-3d]"
         animate={{ rotateY: flipped ? 180 : 0 }}
-        transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+        transition={{ duration: 0.65, ease: [0.2, 0.8, 0.2, 1] }}
       >
-        <div className="absolute inset-0 p-6 [backface-visibility:hidden]">
+        <div className="absolute inset-0 [backface-visibility:hidden]">
           {front}
         </div>
-        <div className="absolute inset-0 p-6 rotate-y-180 [backface-visibility:hidden]">
+        <div className="absolute inset-0 rotate-y-180 [backface-visibility:hidden]">
           {back}
         </div>
       </motion.div>
 
       <button
-        onClick={() => setFlipped((v) => !v)}
-        className="absolute top-4 left-4 rounded-full px-3 py-1 bg-cyan/10 ring-1 ring-cyan/30 hover:ring-cyan/50"
+        onClick={toggle}
+        className="absolute top-4 left-4 btn btn-primary"
       >
         {flipped ? "Zurück" : "Details"}
       </button>
