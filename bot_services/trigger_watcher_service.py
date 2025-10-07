@@ -4,28 +4,60 @@ import aiohttp
 from config.settings import settings
 from shared_utils.logging_setup import cerebrum
 from database.database_manager import db_manager
-from . import scorex_engine  # NEU
-from . import trade_executor # NEU
+from . import scorex_engine
+from . import trade_executor
 
 MQS_BENCHMARK_VOLUME_H1 = 10000
 MQS_BENCHMARK_TX_H24 = 500
 
 def _calculate_mqs(pair_data: dict):
-    # ... (unverändert) ...
+    """
+    Berechnet den Momentum Quality Score (MQS) basierend auf DexScreener-Daten.
+    Score ist von 0-100.
+    """
+    if not pair_data:
+        return 0
+
+    try:
+        # Komponente 1: Kaufdruck (Gewichtung 40%)
+        buys = pair_data.get("txns", {}).get("h24", {}).get("buys", 0)
+        sells = pair_data.get("txns", {}).get("h24", {}).get("sells", 0)
+        total_tx = buys + sells
+        buy_pressure_score = (buys / total_tx) if total_tx > 0 else 0
+        
+        # Komponente 2: Volumen-Geschwindigkeit (Gewichtung 30%)
+        volume_h1 = pair_data.get("volume", {}).get("h1", 0)
+        volume_velocity_score = min(volume_h1 / MQS_BENCHMARK_VOLUME_H1, 1.0)
+
+        # Komponente 3: Transaktions-Geschwindigkeit (Gewichtung 30%)
+        tx_h24 = total_tx
+        tx_velocity_score = min(tx_h24 / MQS_BENCHMARK_TX_H24, 1.0)
+        
+        # Finaler MQS Score
+        mqs = (buy_pressure_score * 40) + (volume_velocity_score * 30) + (tx_velocity_score * 30)
+        return int(mqs)
+
+    except Exception as e:
+        cerebrum.error(f"Fehler bei der MQS-Berechnung: {e}")
+        return 0
 
 async def watch_for_triggers():
+    """
+    Überwacht die Hot Watchlist kontinuierlich auf Kauf-Trigger (z.B. MQS-Anstieg).
+    """
     cerebrum.info("Trigger Watcher Service gestartet.")
     while True:
         try:
             watchlist = await db_manager.get_hot_watchlist()
             if not watchlist:
-                await asyncio.sleep(15)
+                await asyncio.sleep(15) # Kurze Pause, wenn die Watchlist leer ist
                 continue
             
             cerebrum.info(f"Überwache {len(watchlist)} Token auf der Hot Watchlist...")
 
             async with aiohttp.ClientSession() as session:
                 for token_address in watchlist:
+                    # DexScreener API-Endpunkt für Token-Paare
                     url = f"https://api.dexscreener.com/latest/dex/tokens/{token_address}"
                     async with session.get(url) as response:
                         if response.status == 200:
@@ -36,15 +68,13 @@ async def watch_for_triggers():
                                 
                                 cerebrum.info(f"Token: {token_address[:6]}... | MQS: {mqs}")
 
-                                # ## AKTUALISIERTE TRIGGER LOGIK ##
-                                if mqs > 70: # Schwelle etwas gesenkt für mehr potenzielle Aktionen
+                                # TRIGGER LOGIK
+                                if mqs > 70:
                                     cerebrum.success(f"!! MQS-TRIGGER ENTDECKT !! Token: {token_address}, MQS: {mqs}. Aktiviere ScoreX...")
                                     
-                                    # Finale Analyse durch ScoreX
                                     final_score, category = await scorex_engine.run_final_analysis(token_address, mqs)
                                     
                                     if category != "Kein Trade":
-                                        # Investmenthöhe basierend auf Kategorie bestimmen ("Blitzkrieg-Modus")
                                         investment_usd = 0
                                         if category == "Konfidenz-Trade":
                                             investment_usd = 25
@@ -52,11 +82,12 @@ async def watch_for_triggers():
                                             investment_usd = 40
                                         
                                         if investment_usd > 0:
-                                            # Trade ausführen (simuliert)
                                             await trade_executor.execute_simulated_buy(token_address, investment_usd, mqs, final_score, category)
-                                            # Token von Watchlist entfernen, um Re-Buys zu verhindern
                                             await db_manager.remove_from_hot_watchlist(token_address)
-                            # ... (restlicher Code) ...
+                            else:
+                                cerebrum.warning(f"Keine Paardaten von DexScreener für {token_address} gefunden.")
+                        else:
+                            cerebrum.error(f"Fehler beim Abrufen der DexScreener-Daten für {token_address}: Status {response.status}")
             
             await asyncio.sleep(60)
 

@@ -237,3 +237,6 @@
 2025-10-07 12:35:51 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:155 - WebSocket-Verbindung zu QuickNode hergestellt. Lausche auf neue Pools...
 2025-10-07 12:46:03 | INFO     | __main__:main:30 - Bot-Betrieb beendet.
 2025-10-07 12:46:45 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 12:48:33 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 12:48:33 | INFO     | database.database_manager:__init__:11 - Erfolgreich mit Redis verbunden.
+2025-10-07 12:48:34 | INFO     | database.database_manager:__init__:19 - Erfolgreich mit Firestore verbunden.
