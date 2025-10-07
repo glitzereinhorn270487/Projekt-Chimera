@@ -4,7 +4,7 @@ from shared_utils.logging_setup import cerebrum
 from config.settings import settings
 
 class DatabaseManager:
-    def __init__(self):
+     def __init__(self):
         try:
             # Verbindung zu Redis (Hot Watchlist)
             self.redis_client = redis.Redis(decode_responses=True)
@@ -20,6 +20,7 @@ class DatabaseManager:
         except Exception as e:
             cerebrum.critical(f"Konnte keine Verbindung zu Firestore herstellen: {e}")
             self.firestore_client = None
+
 
     async def add_to_hot_watchlist(self, token_address: str):
         if not self.redis_client:
