@@ -8,7 +8,6 @@ from config.settings import settings
 class DatabaseManager:
     def __init__(self):
         try:
-            # Verbindung zu Redis (Hot Watchlist)
             self.redis_client = redis.Redis(decode_responses=True)
             cerebrum.info("Erfolgreich mit Redis verbunden.")
         except Exception as e:
@@ -16,7 +15,6 @@ class DatabaseManager:
             self.redis_client = None
 
         try:
-            # Verbindung zu Firestore (Cold Watchlist)
             self.firestore_client = firestore.AsyncClient()
             cerebrum.info("Erfolgreich mit Firestore verbunden.")
         except Exception as e:
@@ -24,10 +22,9 @@ class DatabaseManager:
             self.firestore_client = None
             
         try:
-            # Verbindung zu Upstash Redis für spezielle Wallets
             self.upstash_client = Redis.from_url(
                 url=settings.UPSTASH_REDIS_URL,
-                token=settings.UPSTASH_TOKEN,
+                token=settings.UPSTASH_REDIS_TOKEN, # KORRIGIERT
                 decode_responses=True
             )
             self.upstash_client.ping()
@@ -37,14 +34,12 @@ class DatabaseManager:
             self.upstash_client = None
 
     def load_special_wallets(self):
-        """Lädt und normalisiert Insider- und Smart-Money-Wallets von Upstash."""
         if not self.upstash_client:
             return set(), set()
         try:
             insider_wallets_raw = self.upstash_client.smembers("insider_wallets")
             smart_money_wallets_raw = self.upstash_client.smembers("smart_money_wallets")
 
-            # Normalisiere jede Adresse, um Inkonsistenzen zu beheben
             def normalize(addr):
                 try:
                     return str(Pubkey.from_string(addr.strip()))
@@ -62,9 +57,7 @@ class DatabaseManager:
             return set(), set()
 
     async def add_to_hot_watchlist(self, token_address: str):
-        if not self.redis_client:
-            cerebrum.error("Redis-Client nicht verfügbar.")
-            return
+        if not self.redis_client: return
         try:
             await self.redis_client.sadd("hot_watchlist", token_address)
             cerebrum.success(f"Token {token_address} zur Hot Watchlist (Redis) hinzugefügt.")
@@ -72,9 +65,7 @@ class DatabaseManager:
             cerebrum.error(f"Fehler beim Hinzufügen zu Redis: {e}")
 
     async def remove_from_hot_watchlist(self, token_address: str):
-        if not self.redis_client:
-            cerebrum.error("Redis-Client nicht verfügbar.")
-            return
+        if not self.redis_client: return
         try:
             await self.redis_client.srem("hot_watchlist", token_address)
             cerebrum.info(f"Token {token_address} von Hot Watchlist (Redis) entfernt.")
@@ -82,14 +73,10 @@ class DatabaseManager:
             cerebrum.error(f"Fehler beim Entfernen von Redis: {e}")
 
     async def add_to_cold_watchlist(self, token_data: dict):
-        if not self.firestore_client:
-            cerebrum.error("Firestore-Client nicht verfügbar.")
-            return
+        if not self.firestore_client: return
         try:
             token_address = token_data.get("address")
-            if not token_address:
-                cerebrum.error("Keine Token-Adresse in den Daten für Firestore gefunden.")
-                return
+            if not token_address: return
             doc_ref = self.firestore_client.collection("tokens").document(token_address)
             await doc_ref.set(token_data)
             cerebrum.info(f"Token {token_address} zur Cold Watchlist (Firestore) hinzugefügt.")
@@ -97,9 +84,7 @@ class DatabaseManager:
             cerebrum.error(f"Fehler beim Schreiben nach Firestore: {e}")
 
     async def get_hot_watchlist(self):
-        if not self.redis_client:
-            cerebrum.error("Redis-Client nicht verfügbar.")
-            return []
+        if not self.redis_client: return []
         try:
             tokens = await self.redis_client.smembers("hot_watchlist")
             return list(tokens)
@@ -108,9 +93,7 @@ class DatabaseManager:
             return []
 
     async def add_open_position(self, trade_data: dict):
-        if not self.firestore_client:
-            cerebrum.error("Firestore-Client nicht verfügbar.")
-            return
+        if not self.firestore_client: return
         try:
             token_address = trade_data.get("token_address")
             doc_ref = self.firestore_client.collection("portfolio").document(token_address)
@@ -120,9 +103,7 @@ class DatabaseManager:
             cerebrum.error(f"Fehler beim Speichern der Position in Firestore: {e}")
 
     async def get_open_positions(self):
-        if not self.firestore_client:
-            cerebrum.error("Firestore-Client nicht verfügbar.")
-            return []
+        if not self.firestore_client: return []
         try:
             positions_ref = self.firestore_client.collection("portfolio")
             positions = [doc.to_dict() async for doc in positions_ref.stream()]
@@ -131,5 +112,4 @@ class DatabaseManager:
             cerebrum.error(f"Fehler beim Abrufen der Positionen von Firestore: {e}")
             return []
 
-# Erstelle eine globale Instanz, die wir importieren können
 db_manager = DatabaseManager()

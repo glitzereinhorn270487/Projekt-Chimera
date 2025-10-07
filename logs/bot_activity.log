@@ -621,3 +621,7 @@
 2025-10-07 14:09:24 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
 2025-10-07 14:09:24 | CRITICAL | bot_services.gatekeeper_service:listen_for_new_pools:151 - Ein kritischer Fehler im Gatekeeper-Polling ist aufgetreten: 
 2025-10-07 17:15:06 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 17:17:34 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 17:17:35 | INFO     | database.database_manager:__init__:13 - Erfolgreich mit Redis verbunden.
+2025-10-07 17:17:36 | INFO     | database.database_manager:__init__:21 - Erfolgreich mit Firestore verbunden.
+2025-10-07 17:17:36 | CRITICAL | database.database_manager:__init__:36 - Konnte keine Verbindung zu Upstash Redis herstellen: 'Settings' object has no attribute 'UPSTASH_TOKEN'
