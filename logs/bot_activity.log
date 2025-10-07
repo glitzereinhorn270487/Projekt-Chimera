@@ -240,3 +240,47 @@
 2025-10-07 12:48:33 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
 2025-10-07 12:48:33 | INFO     | database.database_manager:__init__:11 - Erfolgreich mit Redis verbunden.
 2025-10-07 12:48:34 | INFO     | database.database_manager:__init__:19 - Erfolgreich mit Firestore verbunden.
+2025-10-07 12:50:13 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 12:50:14 | INFO     | database.database_manager:__init__:11 - Erfolgreich mit Redis verbunden.
+2025-10-07 12:50:14 | INFO     | database.database_manager:__init__:19 - Erfolgreich mit Firestore verbunden.
+2025-10-07 12:50:14 | INFO     | __main__:main:11 - ==================================================
+2025-10-07 12:50:14 | INFO     | __main__:main:12 - Starte den NonPlusUltra Trading Bot - Projekt Chimera
+2025-10-07 12:50:14 | INFO     | __main__:main:13 - Blueprint Version: V7
+2025-10-07 12:50:14 | INFO     | __main__:main:14 - ==================================================
+2025-10-07 12:50:14 | INFO     | __main__:main:17 - Bot-Services werden initialisiert...
+2025-10-07 12:50:14 | INFO     | bot_services.trigger_watcher_service:watch_for_triggers:48 - Trigger Watcher Service gestartet.
+2025-10-07 12:50:14 | INFO     | bot_services.athena_engine:manage_positions:10 - Athena Engine (Positions-Manager) gestartet.
+2025-10-07 12:50:15 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:155 - WebSocket-Verbindung zu QuickNode hergestellt. Lausche auf neue Pools...
+2025-10-07 12:50:15 | ERROR    | database.database_manager:get_open_positions:91 - Fehler beim Abrufen der Positionen von Firestore: 404 The database (default) does not exist for project chimera-trading-bot Please visit https://console.cloud.google.com/datastore/setup?project=chimera-trading-bot to add a Cloud Datastore or Cloud Firestore database. 
+2025-10-07 12:52:15 | ERROR    | database.database_manager:get_open_positions:91 - Fehler beim Abrufen der Positionen von Firestore: 404 The database (default) does not exist for project chimera-trading-bot Please visit https://console.cloud.google.com/datastore/setup?project=chimera-trading-bot to add a Cloud Datastore or Cloud Firestore database. 
+2025-10-07 12:54:15 | ERROR    | database.database_manager:get_open_positions:91 - Fehler beim Abrufen der Positionen von Firestore: 404 The database (default) does not exist for project chimera-trading-bot Please visit https://console.cloud.google.com/datastore/setup?project=chimera-trading-bot to add a Cloud Datastore or Cloud Firestore database. 
+2025-10-07 12:54:32 | SUCCESS  | bot_services.gatekeeper_service:listen_for_new_pools:163 - Neuer Raydium Liquiditätspool entdeckt!
+2025-10-07 12:56:15 | ERROR    | database.database_manager:get_open_positions:91 - Fehler beim Abrufen der Positionen von Firestore: 404 The database (default) does not exist for project chimera-trading-bot Please visit https://console.cloud.google.com/datastore/setup?project=chimera-trading-bot to add a Cloud Datastore or Cloud Firestore database. 
+2025-10-07 12:58:15 | INFO     | __main__:main:31 - Bot-Betrieb beendet.
+2025-10-07 12:58:19 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 12:58:19 | INFO     | database.database_manager:__init__:11 - Erfolgreich mit Redis verbunden.
+2025-10-07 12:58:20 | INFO     | database.database_manager:__init__:19 - Erfolgreich mit Firestore verbunden.
+2025-10-07 12:58:20 | INFO     | __main__:main:11 - ==================================================
+2025-10-07 12:58:20 | INFO     | __main__:main:12 - Starte den NonPlusUltra Trading Bot - Projekt Chimera
+2025-10-07 12:58:20 | INFO     | __main__:main:13 - Blueprint Version: V7
+2025-10-07 12:58:20 | INFO     | __main__:main:14 - ==================================================
+2025-10-07 12:58:20 | INFO     | __main__:main:17 - Bot-Services werden initialisiert...
+2025-10-07 12:58:20 | INFO     | bot_services.trigger_watcher_service:watch_for_triggers:48 - Trigger Watcher Service gestartet.
+2025-10-07 12:58:20 | INFO     | bot_services.athena_engine:manage_positions:10 - Athena Engine (Positions-Manager) gestartet.
+2025-10-07 12:58:20 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:155 - WebSocket-Verbindung zu QuickNode hergestellt. Lausche auf neue Pools...
+2025-10-07 12:58:20 | ERROR    | database.database_manager:get_open_positions:91 - Fehler beim Abrufen der Positionen von Firestore: 404 The database (default) does not exist for project chimera-trading-bot Please visit https://console.cloud.google.com/datastore/setup?project=chimera-trading-bot to add a Cloud Datastore or Cloud Firestore database. 
+2025-10-07 13:00:20 | ERROR    | database.database_manager:get_open_positions:91 - Fehler beim Abrufen der Positionen von Firestore: 404 The database (default) does not exist for project chimera-trading-bot Please visit https://console.cloud.google.com/datastore/setup?project=chimera-trading-bot to add a Cloud Datastore or Cloud Firestore database. 
+2025-10-07 13:01:37 | SUCCESS  | bot_services.gatekeeper_service:listen_for_new_pools:163 - Neuer Raydium Liquiditätspool entdeckt!
+2025-10-07 13:02:20 | ERROR    | database.database_manager:get_open_positions:91 - Fehler beim Abrufen der Positionen von Firestore: 404 The database (default) does not exist for project chimera-trading-bot Please visit https://console.cloud.google.com/datastore/setup?project=chimera-trading-bot to add a Cloud Datastore or Cloud Firestore database. 
+2025-10-07 13:03:57 | INFO     | __main__:main:31 - Bot-Betrieb beendet.
+2025-10-07 13:04:11 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 13:04:11 | INFO     | database.database_manager:__init__:11 - Erfolgreich mit Redis verbunden.
+2025-10-07 13:04:12 | INFO     | database.database_manager:__init__:19 - Erfolgreich mit Firestore verbunden.
+2025-10-07 13:04:12 | INFO     | __main__:main:11 - ==================================================
+2025-10-07 13:04:12 | INFO     | __main__:main:12 - Starte den NonPlusUltra Trading Bot - Projekt Chimera
+2025-10-07 13:04:12 | INFO     | __main__:main:13 - Blueprint Version: V7
+2025-10-07 13:04:12 | INFO     | __main__:main:14 - ==================================================
+2025-10-07 13:04:12 | INFO     | __main__:main:17 - Bot-Services werden initialisiert...
+2025-10-07 13:04:12 | INFO     | bot_services.trigger_watcher_service:watch_for_triggers:48 - Trigger Watcher Service gestartet.
+2025-10-07 13:04:12 | INFO     | bot_services.athena_engine:manage_positions:10 - Athena Engine (Positions-Manager) gestartet.
+2025-10-07 13:04:12 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:155 - WebSocket-Verbindung zu QuickNode hergestellt. Lausche auf neue Pools...
