@@ -124,9 +124,6 @@ async def listen_for_new_pools():
                 transaction_response = await rpc_client.get_transaction(sig, max_supported_transaction_version=0)
                 transaction = transaction_response.value
 
-                # ## FINAL FIX ##
-                # This is the robust way to check for logs. We use getattr() to safely
-                # access attributes that might not exist, preventing any crashes.
                 meta = getattr(transaction, 'meta', None)
                 if meta and getattr(meta, 'log_messages', None):
                     logs = meta.log_messages
