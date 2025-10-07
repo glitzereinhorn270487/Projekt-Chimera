@@ -1,7 +1,6 @@
 import asyncio
-from loguru import logger
-from config.settings import settings
 from shared_utils.logging_setup import cerebrum
+from bot_services.gatekeeper_service import listen_for_new_pools
 
 async def main():
     """
@@ -13,13 +12,13 @@ async def main():
     cerebrum.info("==================================================")
 
     try:
-        # Hier werden wir später unsere Services (Gatekeeper, Trigger-Watcher etc.) starten
         cerebrum.info("Bot-Services werden initialisiert...")
         
-        # Simuliert den laufenden Bot
-        while True:
-            await asyncio.sleep(60)
-            cerebrum.info("Herzschlag: Bot ist aktiv und überwacht...")
+        # Erstelle eine Aufgabe für den Gatekeeper-Service, damit er im Hintergrund läuft
+        gatekeeper_task = asyncio.create_task(listen_for_new_pools())
+
+        # Hier können später weitere Services als Tasks hinzugefügt werden
+        await asyncio.gather(gatekeeper_task)
 
     except KeyboardInterrupt:
         cerebrum.warning("Bot wird manuell heruntergefahren.")
@@ -30,7 +29,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    # Erstelle einen Ordner für die Logs, falls er nicht existiert
     import os
     if not os.path.exists("logs"):
         os.makedirs("logs")
