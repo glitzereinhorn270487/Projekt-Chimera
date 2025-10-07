@@ -1,3 +1,4 @@
+
 import redis.asyncio as redis
 from solders.pubkey import Pubkey
 from google.cloud import firestore
@@ -31,8 +32,11 @@ class DatabaseManager:
             self.upstash_client = None
 
     async def load_special_wallets(self):
-        if not self.upstash_client: return set(), set()
+        """Lädt und normalisiert Insider- und Smart-Money-Wallets von Upstash."""
+        if not self.upstash_client:
+            return set(), set()
         try:
+            await self.upstash_client.ping() # Check connection
             insider_wallets_raw = await self.upstash_client.smembers("insider_wallets")
             smart_money_wallets_raw = await self.upstash_client.smembers("smart_money_wallets")
 
@@ -49,19 +53,14 @@ class DatabaseManager:
             cerebrum.error(f"Fehler beim Laden der speziellen Wallets von Upstash: {e}")
             return set(), set()
 
-    # ... (Der Rest der Datei bleibt exakt gleich, du kannst ihn von deiner Version kopieren oder hier nehmen)
     async def add_to_hot_watchlist(self, token_address: str):
         if not self.redis_client: return
-        try:
-            await self.redis_client.sadd("hot_watchlist", token_address)
-            cerebrum.success(f"Token {token_address} zur Hot Watchlist (Redis) hinzugefügt.")
+        try: await self.redis_client.sadd("hot_watchlist", token_address)
         except Exception as e: cerebrum.error(f"Fehler bei Redis: {e}")
 
     async def remove_from_hot_watchlist(self, token_address: str):
         if not self.redis_client: return
-        try:
-            await self.redis_client.srem("hot_watchlist", token_address)
-            cerebrum.info(f"Token {token_address} von Hot Watchlist (Redis) entfernt.")
+        try: await self.redis_client.srem("hot_watchlist", token_address)
         except Exception as e: cerebrum.error(f"Fehler bei Redis: {e}")
 
     async def add_to_cold_watchlist(self, token_data: dict):
@@ -76,7 +75,6 @@ class DatabaseManager:
     async def get_hot_watchlist(self):
         if not self.redis_client: return []
         try:
-            # Versuche Ping vor dem Lesen
             await self.redis_client.ping()
             tokens = await self.redis_client.smembers("hot_watchlist")
             return list(tokens)
@@ -90,7 +88,6 @@ class DatabaseManager:
             token_address = trade_data.get("token_address")
             doc_ref = self.firestore_client.collection("portfolio").document(token_address)
             await doc_ref.set(trade_data)
-            cerebrum.success(f"Neue Position {token_address} im Portfolio gespeichert.")
         except Exception as e: cerebrum.error(f"Fehler beim Speichern der Position in Firestore: {e}")
 
     async def get_open_positions(self):

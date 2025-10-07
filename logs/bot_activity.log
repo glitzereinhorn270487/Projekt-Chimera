@@ -646,3 +646,72 @@
 2025-10-07 17:23:47 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
 2025-10-07 17:23:58 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
 2025-10-07 17:24:00 | INFO     | __main__:main:31 - Bot-Betrieb beendet.
+2025-10-07 17:32:08 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 17:32:08 | INFO     | database.database_manager:__init__:11 - Lokale Redis-Verbindung (Hot Watchlist) initialisiert.
+2025-10-07 17:32:08 | INFO     | database.database_manager:__init__:18 - Erfolgreich mit Firestore verbunden.
+2025-10-07 17:32:08 | INFO     | database.database_manager:__init__:28 - Erfolgreich mit Upstash Redis verbunden.
+2025-10-07 17:32:08 | INFO     | __main__:main:11 - ==================================================
+2025-10-07 17:32:08 | INFO     | __main__:main:12 - Starte den NonPlusUltra Trading Bot - Projekt Chimera
+2025-10-07 17:32:08 | INFO     | __main__:main:13 - Blueprint Version: V7
+2025-10-07 17:32:08 | INFO     | __main__:main:14 - ==================================================
+2025-10-07 17:32:08 | INFO     | __main__:main:17 - Bot-Services werden initialisiert...
+2025-10-07 17:32:09 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:100 - Gatekeeper startet im Polling-Modus...
+2025-10-07 17:32:09 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
+2025-10-07 17:32:09 | INFO     | bot_services.trigger_watcher_service:watch_for_triggers:50 - Trigger Watcher Service gestartet.
+2025-10-07 17:32:09 | INFO     | bot_services.athena_engine:manage_positions:14 - Athena Engine (Positions-Manager) gestartet.
+2025-10-07 17:32:09 | ERROR    | __main__:main:29 - Ein kritischer Fehler ist aufgetreten: cannot unpack non-iterable coroutine object
+Traceback (most recent call last):
+
+  File "/workspaces/Projekt-Chimera/main.py", line 39, in <module>
+    asyncio.run(main())
+    │       │   └ <function main at 0x7671c8d362a0>
+    │       └ <function run at 0x7671c8192520>
+    └ <module 'asyncio' from '/usr/local/python/3.12.1/lib/python3.12/asyncio/__init__.py'>
+
+  File "/usr/local/python/3.12.1/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           │      │   └ <coroutine object main at 0x7671bf0aed40>
+           │      └ <function Runner.run at 0x7671c8023b00>
+           └ <asyncio.runners.Runner object at 0x7671c81b3290>
+  File "/usr/local/python/3.12.1/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<main() running at /workspaces/Projekt-Chimera/main.py:29> cb=[_run_until_complete_cb() at /...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x7671c8021760>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x7671c81b3290>
+  File "/usr/local/python/3.12.1/lib/python3.12/asyncio/base_events.py", line 671, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x7671c80216c0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/usr/local/python/3.12.1/lib/python3.12/asyncio/base_events.py", line 638, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x7671c80234c0>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/usr/local/python/3.12.1/lib/python3.12/asyncio/base_events.py", line 1971, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7671c817d940>
+    └ <Handle Task.task_wakeup(<_GatheringFu...tine object')>)>
+  File "/usr/local/python/3.12.1/lib/python3.12/asyncio/events.py", line 84, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup(<_GatheringFu...tine object')>)>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup(<_GatheringFu...tine object')>)>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup(<_GatheringFu...tine object')>)>
+
+> File "/workspaces/Projekt-Chimera/main.py", line 24, in main
+    await asyncio.gather(gatekeeper_task, trigger_watcher_task, athena_task) # ## AKTUALISIERT ##
+          │       │      │                │                     └ <Task pending name='Task-4' coro=<manage_positions() running at /workspaces/Projekt-Chimera/bot_services/athena_engine.py:17>...
+          │       │      │                └ <Task finished name='Task-3' coro=<watch_for_triggers() done, defined at /workspaces/Projekt-Chimera/bot_services/trigger_wat...
+          │       │      └ <Task pending name='Task-2' coro=<listen_for_new_pools() running at /workspaces/Projekt-Chimera/bot_services/gatekeeper_servi...
+          │       └ <function gather at 0x7671c8226160>
+          └ <module 'asyncio' from '/usr/local/python/3.12.1/lib/python3.12/asyncio/__init__.py'>
+
+  File "/workspaces/Projekt-Chimera/bot_services/trigger_watcher_service.py", line 51, in watch_for_triggers
+    insiders, smart_money = db_manager.load_special_wallets()
+                            │          └ <function DatabaseManager.load_special_wallets at 0x7671c51f4400>
+                            └ <database.database_manager.DatabaseManager object at 0x7671c7fdff20>
+
+TypeError: cannot unpack non-iterable coroutine object
+2025-10-07 17:32:09 | INFO     | __main__:main:31 - Bot-Betrieb beendet.

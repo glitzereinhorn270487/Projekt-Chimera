@@ -10,20 +10,16 @@ MQS_BENCHMARK_VOLUME_H1 = 10000
 MQS_BENCHMARK_TX_H24 = 500
 
 def _calculate_mqs(pair_data: dict):
-    if not pair_data:
-        return 0
+    if not pair_data: return 0
     try:
         buys = pair_data.get("txns", {}).get("h24", {}).get("buys", 0)
         sells = pair_data.get("txns", {}).get("h24", {}).get("sells", 0)
         total_tx = buys + sells
         buy_pressure_score = (buys / total_tx) if total_tx > 0 else 0
-        
         volume_h1 = pair_data.get("volume", {}).get("h1", 0)
         volume_velocity_score = min(volume_h1 / MQS_BENCHMARK_VOLUME_H1, 1.0)
-
         tx_h24 = total_tx
         tx_velocity_score = min(tx_h24 / MQS_BENCHMARK_TX_H24, 1.0)
-        
         mqs = (buy_pressure_score * 40) + (volume_velocity_score * 30) + (tx_velocity_score * 30)
         return int(mqs)
     except Exception as e:
@@ -32,8 +28,7 @@ def _calculate_mqs(pair_data: dict):
 
 def _check_for_special_wallet_activity(pair_data: dict, insiders: set, smart_money: set):
     recent_txns = pair_data.get("transactions", [])
-    if not recent_txns:
-        return None
+    if not recent_txns: return None
     for txn in recent_txns:
         if txn.get('txType') == 'buy':
             buyer = txn.get('maker', {}).get('address')
@@ -48,7 +43,8 @@ def _check_for_special_wallet_activity(pair_data: dict, insiders: set, smart_mon
 
 async def watch_for_triggers():
     cerebrum.info("Trigger Watcher Service gestartet.")
-    insiders, smart_money = db_manager.load_special_wallets()
+    # Lade die speziellen Wallets einmal beim Start
+    insiders, smart_money = await db_manager.load_special_wallets() # KORRIGIERT mit 'await'
     
     while True:
         try:
