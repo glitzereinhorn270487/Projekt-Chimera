@@ -1,0 +1,16 @@
+# Web3 and Solana Interaction
+solana
+solders
+web3
+
+# Async and WebSockets
+websockets
+aiohttp
+
+# Database
+redis
+google-cloud-firestore
+
+# Utilities
+python-dotenv
+loguru
