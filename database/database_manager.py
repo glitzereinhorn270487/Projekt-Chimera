@@ -21,6 +21,26 @@ class DatabaseManager:
             cerebrum.critical(f"Konnte keine Verbindung zu Firestore herstellen: {e}")
             self.firestore_client = None
 
+            def load_special_wallets(self):
+        """Lädt und normalisiert Insider- und Smart-Money-Wallets von Upstash."""
+        if not self.upstash_client:
+            return set(), set()
+        try:
+            insider_wallets_raw = self.upstash_client.smembers("insider_wallets")
+            smart_money_wallets_raw = self.upstash_client.smembers("smart_money_wallets")
+
+            # Normalisiere jede Adresse, um Inkonsistenzen zu beheben
+            normalize = lambda addr: str(Pubkey.from_string(addr.strip()))
+            
+            insiders = {normalize(w) for w in insider_wallets_raw}
+            smart_money = {normalize(w) for w in smart_money_wallets_raw}
+            
+            cerebrum.success(f"{len(insiders)} Insider und {len(smart_money)} Smart Money Wallets geladen.")
+            return insiders, smart_money
+        except Exception as e:
+            cerebrum.error(f"Fehler beim Laden der speziellen Wallets von Upstash: {e}")
+            return set(), set()
+
 
     async def add_to_hot_watchlist(self, token_address: str):
         if not self.redis_client:
