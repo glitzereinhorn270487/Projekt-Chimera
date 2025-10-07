@@ -1,6 +1,7 @@
 import asyncio
 from shared_utils.logging_setup import cerebrum
 from bot_services.gatekeeper_service import listen_for_new_pools
+from bot_services.trigger_watcher_service import watch_for_triggers # ## NEUER IMPORT ##
 
 async def main():
     """
@@ -14,11 +15,12 @@ async def main():
     try:
         cerebrum.info("Bot-Services werden initialisiert...")
         
-        # Erstelle eine Aufgabe für den Gatekeeper-Service, damit er im Hintergrund läuft
+        # Erstelle Tasks für die parallel laufenden Services
         gatekeeper_task = asyncio.create_task(listen_for_new_pools())
+        trigger_watcher_task = asyncio.create_task(watch_for_triggers()) # ## NEUER TASK ##
 
-        # Hier können später weitere Services als Tasks hinzugefügt werden
-        await asyncio.gather(gatekeeper_task)
+        # Lasse beide Services für immer laufen
+        await asyncio.gather(gatekeeper_task, trigger_watcher_task) # ## AKTUALISIERT ##
 
     except KeyboardInterrupt:
         cerebrum.warning("Bot wird manuell heruntergefahren.")

@@ -33,6 +33,19 @@ class DatabaseManager:
         except Exception as e:
             cerebrum.error(f"Fehler beim Hinzufügen zu Redis: {e}")
 
+            ## NEU ##
+    async def get_hot_watchlist(self):
+        if not self.redis_client:
+            cerebrum.error("Redis-Client nicht verfügbar.")
+            return []
+        try:
+            tokens = await self.redis_client.smembers("hot_watchlist")
+            return list(tokens)
+        except Exception as e:
+            cerebrum.error(f"Fehler beim Lesen der Hot Watchlist von Redis: {e}")
+            return []
+
+
     async def add_to_cold_watchlist(self, token_data: dict):
         if not self.firestore_client:
             cerebrum.error("Firestore-Client nicht verfügbar.")

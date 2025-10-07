@@ -31,3 +31,13 @@
 2025-10-07 10:53:12 | INFO     | __main__:main:12 - ==================================================
 2025-10-07 10:53:12 | INFO     | __main__:main:15 - Bot-Services werden initialisiert...
 2025-10-07 10:53:12 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:115 - WebSocket-Verbindung zu QuickNode hergestellt. Lausche auf neue Pools...
+2025-10-07 10:58:31 | INFO     | __main__:main:28 - Bot-Betrieb beendet.
+2025-10-07 10:58:36 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 10:58:36 | INFO     | database.database_manager:__init__:11 - Erfolgreich mit Redis verbunden.
+2025-10-07 10:58:37 | INFO     | database.database_manager:__init__:21 - Erfolgreich mit Firestore verbunden.
+2025-10-07 10:58:37 | INFO     | __main__:main:9 - ==================================================
+2025-10-07 10:58:37 | INFO     | __main__:main:10 - Starte den NonPlusUltra Trading Bot - Projekt Chimera
+2025-10-07 10:58:37 | INFO     | __main__:main:11 - Blueprint Version: V7
+2025-10-07 10:58:37 | INFO     | __main__:main:12 - ==================================================
+2025-10-07 10:58:37 | INFO     | __main__:main:15 - Bot-Services werden initialisiert...
+2025-10-07 10:58:37 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:155 - WebSocket-Verbindung zu QuickNode hergestellt. Lausche auf neue Pools...
