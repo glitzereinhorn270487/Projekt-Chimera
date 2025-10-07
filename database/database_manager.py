@@ -1,10 +1,12 @@
 import redis.asyncio as redis
+from redis import Redis
+from solders.pubkey import Pubkey
 from google.cloud import firestore
 from shared_utils.logging_setup import cerebrum
 from config.settings import settings
 
 class DatabaseManager:
-     def __init__(self):
+    def __init__(self):
         try:
             # Verbindung zu Redis (Hot Watchlist)
             self.redis_client = redis.Redis(decode_responses=True)
@@ -20,8 +22,21 @@ class DatabaseManager:
         except Exception as e:
             cerebrum.critical(f"Konnte keine Verbindung zu Firestore herstellen: {e}")
             self.firestore_client = None
+            
+        try:
+            # Verbindung zu Upstash Redis für spezielle Wallets
+            self.upstash_client = Redis.from_url(
+                url=settings.UPSTASH_REDIS_URL,
+                token=settings.UPSTASH_TOKEN,
+                decode_responses=True
+            )
+            self.upstash_client.ping()
+            cerebrum.info("Erfolgreich mit Upstash Redis verbunden.")
+        except Exception as e:
+            cerebrum.critical(f"Konnte keine Verbindung zu Upstash Redis herstellen: {e}")
+            self.upstash_client = None
 
-            def load_special_wallets(self):
+    def load_special_wallets(self):
         """Lädt und normalisiert Insider- und Smart-Money-Wallets von Upstash."""
         if not self.upstash_client:
             return set(), set()
@@ -30,17 +45,21 @@ class DatabaseManager:
             smart_money_wallets_raw = self.upstash_client.smembers("smart_money_wallets")
 
             # Normalisiere jede Adresse, um Inkonsistenzen zu beheben
-            normalize = lambda addr: str(Pubkey.from_string(addr.strip()))
+            def normalize(addr):
+                try:
+                    return str(Pubkey.from_string(addr.strip()))
+                except:
+                    cerebrum.warning(f"Ungültige Wallet-Adresse in DB gefunden: {addr}")
+                    return None
             
-            insiders = {normalize(w) for w in insider_wallets_raw}
-            smart_money = {normalize(w) for w in smart_money_wallets_raw}
+            insiders = {normalized for addr in insider_wallets_raw if (normalized := normalize(addr))}
+            smart_money = {normalized for addr in smart_money_wallets_raw if (normalized := normalize(addr))}
             
             cerebrum.success(f"{len(insiders)} Insider und {len(smart_money)} Smart Money Wallets geladen.")
             return insiders, smart_money
         except Exception as e:
             cerebrum.error(f"Fehler beim Laden der speziellen Wallets von Upstash: {e}")
             return set(), set()
-
 
     async def add_to_hot_watchlist(self, token_address: str):
         if not self.redis_client:

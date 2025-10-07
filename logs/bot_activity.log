@@ -620,3 +620,4 @@
 2025-10-07 14:09:04 | CRITICAL | bot_services.gatekeeper_service:listen_for_new_pools:151 - Ein kritischer Fehler im Gatekeeper-Polling ist aufgetreten: 
 2025-10-07 14:09:24 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
 2025-10-07 14:09:24 | CRITICAL | bot_services.gatekeeper_service:listen_for_new_pools:151 - Ein kritischer Fehler im Gatekeeper-Polling ist aufgetreten: 
+2025-10-07 17:15:06 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
