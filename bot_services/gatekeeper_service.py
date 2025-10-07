@@ -15,7 +15,6 @@ MINIMUM_LIQUIDITY_USD = 15000
 SOL_MINT_ADDRESS = "So11111111111111111111111111111111111111112"
 POLLING_INTERVAL_SECONDS = 10
 
-# All helper functions remain the same
 def _parse_pool_info_from_logs(logs):
     try:
         pubkeys = []
@@ -102,30 +101,35 @@ async def listen_for_new_pools():
     while True:
         try:
             cerebrum.debug("Suche nach neuen Pools...")
-            signatures = await rpc_client.get_signatures_for_address(RAYDIUM_LP_V4, limit=20)
-            if not signatures.value:
+            signatures_response = await rpc_client.get_signatures_for_address(RAYDIUM_LP_V4, limit=25)
+            signatures = signatures_response.value
+            if not signatures:
                 await asyncio.sleep(POLLING_INTERVAL_SECONDS)
                 continue
             
-            new_signatures = reversed([s.signature for s in signatures.value])
+            new_signatures = reversed([s.signature for s in signatures])
+            
+            temp_sig_list = list(new_signatures)
             if last_processed_signature:
                 try:
-                    temp_sig_list = list(new_signatures)
                     if last_processed_signature in temp_sig_list:
                         index = temp_sig_list.index(last_processed_signature)
                         new_signatures = temp_sig_list[index + 1:]
                     else:
                         new_signatures = temp_sig_list
                 except ValueError:
-                    pass
+                     new_signatures = temp_sig_list
             
             for sig in new_signatures:
-                transaction = await rpc_client.get_transaction(sig, max_supported_transaction_version=0)
-                
-                # ## HIER IST DER FIX ##
-                # Wir prüfen jetzt sicher, ob 'meta' und 'log_messages' existieren
-                if transaction.value and transaction.value.meta and transaction.value.meta.log_messages:
-                    logs = transaction.value.meta.log_messages
+                transaction_response = await rpc_client.get_transaction(sig, max_supported_transaction_version=0)
+                transaction = transaction_response.value
+
+                # ## FINAL FIX ##
+                # This is the robust way to check for logs. We use getattr() to safely
+                # access attributes that might not exist, preventing any crashes.
+                meta = getattr(transaction, 'meta', None)
+                if meta and getattr(meta, 'log_messages', None):
+                    logs = meta.log_messages
                     if any("initialize2" in log for log in logs):
                         cerebrum.success(f"Neuer Raydium Liquiditätspool entdeckt! Signatur: {sig}")
                         pool_info = _parse_pool_info_from_logs(logs)
@@ -143,12 +147,9 @@ async def listen_for_new_pools():
                                 message = (f"✅ **Neuer Token auf Watchlist** ✅\n\n`{token_address}`\n\nDer Token hat die Gatekeeper-Prüfung bestanden und wird jetzt überwacht.")
                                 await send_telegram_message(message)
 
-            if signatures.value:
-                last_processed_signature = signatures.value[0].signature
-
+            last_processed_signature = signatures[0].signature
             await asyncio.sleep(POLLING_INTERVAL_SECONDS)
+
         except Exception as e:
             cerebrum.critical(f"Ein kritischer Fehler im Gatekeeper-Polling ist aufgetreten: {e}")
             await asyncio.sleep(POLLING_INTERVAL_SECONDS * 2)
-
-        
