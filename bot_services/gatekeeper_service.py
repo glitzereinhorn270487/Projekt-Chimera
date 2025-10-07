@@ -13,10 +13,9 @@ from shared_utils.price_oracle import get_sol_price_usd
 RAYDIUM_LP_V4 = Pubkey.from_string('675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8')
 MINIMUM_LIQUIDITY_USD = 15000
 SOL_MINT_ADDRESS = "So11111111111111111111111111111111111111112"
-POLLING_INTERVAL_SECONDS = 10 # Check for new pools every 10 seconds
+POLLING_INTERVAL_SECONDS = 10
 
-# ## ALLES UNTEN WURDE AKTUALISIERT ODER IST NEU ##
-
+# All helper functions remain the same
 def _parse_pool_info_from_logs(logs):
     try:
         pubkeys = []
@@ -29,9 +28,7 @@ def _parse_pool_info_from_logs(logs):
                             pubkeys.append(part)
                 except:
                     continue
-        
         unique_keys = list(dict.fromkeys(pubkeys))
-
         if len(unique_keys) >= 6:
             return {
                 "lp_mint": unique_keys[3],
@@ -44,7 +41,6 @@ def _parse_pool_info_from_logs(logs):
         cerebrum.error(f"Fehler beim Parsen der Logs: {e}")
     return None
 
-
 async def _get_token_balance_and_decimals(rpc_client: AsyncClient, token_account_address: str):
     try:
         account_pubkey = Pubkey.from_string(token_account_address)
@@ -52,25 +48,19 @@ async def _get_token_balance_and_decimals(rpc_client: AsyncClient, token_account
         balance = balance_response.value.ui_amount
         decimals = balance_response.value.decimals
         return balance, decimals
-    except SolanaRpcException as e:
-        cerebrum.error(f"RPC-Fehler beim Abrufen der Kontodetails für {token_account_address}: {e}")
     except Exception as e:
-        cerebrum.error(f"Allg. Fehler beim Abrufen der Kontodetails für {token_account_address}: {e}")
+        cerebrum.error(f"Fehler beim Abrufen der Kontodetails für {token_account_address}: {e}")
     return 0, 0
-
 
 async def _check_liquidity(pool_info: dict):
     try:
         sol_price = await get_sol_price_usd()
         if not sol_price:
-            cerebrum.error("Konnte SOL-Preis nicht abrufen, Liquiditätsprüfung fehlgeschlagen.")
             return False, "$0.00"
-
         rpc_client = AsyncClient(settings.QUICKNODE_RPC_URL)
         balance_a, _ = await _get_token_balance_and_decimals(rpc_client, pool_info["token_a_account"])
         balance_b, _ = await _get_token_balance_and_decimals(rpc_client, pool_info["token_b_account"])
         await rpc_client.close()
-
         total_liquidity_usd = 0
         if pool_info["token_a_mint"] == SOL_MINT_ADDRESS:
             total_liquidity_usd = (balance_a * sol_price) * 2
@@ -78,10 +68,8 @@ async def _check_liquidity(pool_info: dict):
             total_liquidity_usd = (balance_b * sol_price) * 2
         else:
             return True, "N/A (Non-SOL Pair)"
-
         liquidity_value_str = f"${total_liquidity_usd:,.2f}"
         cerebrum.info(f"Echte Liquidität für LP {pool_info.get('lp_mint')}: {liquidity_value_str}")
-
         if total_liquidity_usd >= MINIMUM_LIQUIDITY_USD:
             return True, liquidity_value_str
         else:
@@ -94,45 +82,34 @@ async def check_token(pool_info: dict) -> bool:
     token_address = pool_info.get("token_b_mint")
     if pool_info.get("token_a_mint") != SOL_MINT_ADDRESS:
         token_address = pool_info.get("token_a_mint")
-    
     cerebrum.info(f"Führe Gatekeeper-Prüfung für Token {token_address} durch...")
     liquidity_ok, liquidity_value = await _check_liquidity(pool_info)
     if not liquidity_ok:
         cerebrum.warning(f"[CHECK 1/5 FAILED] Liquidität ({liquidity_value}) unter dem Minimum von ${MINIMUM_LIQUIDITY_USD:,.2f}")
         return False
     cerebrum.success(f"[CHECK 1/5 PASSED] Liquidität: {liquidity_value}")
-    
     cerebrum.warning(f"[CHECK 2/5] Honeypot-Check für {token_address} noch nicht implementiert. Angenommen: PASS")
     cerebrum.warning(f"[CHECK 3/5] Steuer-Check für {token_address} noch nicht implementiert. Angenommen: PASS")
     cerebrum.warning(f"[CHECK 4/5] Verifizierungs-Check für {token_address} noch nicht implementiert. Angenommen: PASS")
     cerebrum.warning(f"[CHECK 5/5] Dezentralisierungs-Check für {token_address} noch nicht implementiert. Angenommen: PASS")
-
     cerebrum.success(f"GATEKEEPER-PRÜFUNG BESTANDEN für Token {token_address}")
     return True
 
-
 async def listen_for_new_pools():
-    """
-    ## NEUE POLLING-LOGIK ##
-    Überprüft periodisch die neuesten Transaktionen des Raydium-Programms.
-    """
     rpc_client = AsyncClient(settings.QUICKNODE_RPC_URL)
     last_processed_signature = None
     cerebrum.info("Gatekeeper startet im Polling-Modus...")
-
     while True:
         try:
             cerebrum.debug("Suche nach neuen Pools...")
-            # Hole die letzten 20 Transaktionssignaturen für das Raydium-Programm
             signatures = await rpc_client.get_signatures_for_address(RAYDIUM_LP_V4, limit=20)
+            if not signatures.value:
+                await asyncio.sleep(POLLING_INTERVAL_SECONDS)
+                continue
             
-            # Verarbeite von der ältesten zur neuesten
             new_signatures = reversed([s.signature for s in signatures.value])
-            
-            # Finde den Index der letzten verarbeiteten Signatur, um Doppelarbeit zu vermeiden
             if last_processed_signature:
                 try:
-                    # Pythonische Weg, um neue Signaturen zu filtern
                     temp_sig_list = list(new_signatures)
                     if last_processed_signature in temp_sig_list:
                         index = temp_sig_list.index(last_processed_signature)
@@ -140,11 +117,14 @@ async def listen_for_new_pools():
                     else:
                         new_signatures = temp_sig_list
                 except ValueError:
-                    pass # Kommt vor, wenn die letzte Signatur nicht mehr in der Liste ist
+                    pass
             
             for sig in new_signatures:
                 transaction = await rpc_client.get_transaction(sig, max_supported_transaction_version=0)
-                if transaction.value and transaction.value.meta.log_messages:
+                
+                # ## HIER IST DER FIX ##
+                # Wir prüfen jetzt sicher, ob 'meta' und 'log_messages' existieren
+                if transaction.value and transaction.value.meta and transaction.value.meta.log_messages:
                     logs = transaction.value.meta.log_messages
                     if any("initialize2" in log for log in logs):
                         cerebrum.success(f"Neuer Raydium Liquiditätspool entdeckt! Signatur: {sig}")
@@ -167,7 +147,8 @@ async def listen_for_new_pools():
                 last_processed_signature = signatures.value[0].signature
 
             await asyncio.sleep(POLLING_INTERVAL_SECONDS)
-
         except Exception as e:
             cerebrum.critical(f"Ein kritischer Fehler im Gatekeeper-Polling ist aufgetreten: {e}")
-            await asyncio.sleep(POLLING_INTERVAL_SECONDS * 2) # Längere Pause bei Fehler
+            await asyncio.sleep(POLLING_INTERVAL_SECONDS * 2)
+
+        
