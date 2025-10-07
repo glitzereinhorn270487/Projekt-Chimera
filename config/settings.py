@@ -23,6 +23,8 @@ class Settings:
     ## NEU ##
     # Datenprovider APIs
     DEXSCREENER_API_URL: str = "https://api.dexscreener.com/latest/dex/tokens"
+    GOPLUS_API_URL: str = "https://api.gopluslabs.io/api/v1/token_security/1" # 1 = Solana Chain ID
+
 
     if not all([QUICKNODE_RPC_URL, QUICKNODE_WSS_URL, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, GOOGLE_CLOUD_PROJECT]):
         raise ValueError("Wichtige API-Schlüssel oder Konfigurationen fehlen in den Umgebungsvariablen.")

@@ -33,6 +33,17 @@ class DatabaseManager:
         except Exception as e:
             cerebrum.error(f"Fehler beim Hinzufügen zu Redis: {e}")
 
+             ## NEU ##
+    async def remove_from_hot_watchlist(self, token_address: str):
+        if not self.redis_client:
+            cerebrum.error("Redis-Client nicht verfügbar.")
+            return
+        try:
+            await self.redis_client.srem("hot_watchlist", token_address)
+            cerebrum.info(f"Token {token_address} von Hot Watchlist (Redis) entfernt.")
+        except Exception as e:
+            cerebrum.error(f"Fehler beim Entfernen von Redis: {e}")
+
             ## NEU ##
     async def get_hot_watchlist(self):
         if not self.redis_client:
@@ -61,5 +72,29 @@ class DatabaseManager:
         except Exception as e:
             cerebrum.error(f"Fehler beim Schreiben nach Firestore: {e}")
 
-# Erstelle eine globale Instanz, die wir importieren können
+            async def add_open_position(self, trade_data: dict):
+        if not self.firestore_client:
+            cerebrum.error("Firestore-Client nicht verfügbar.")
+            return
+        try:
+            token_address = trade_data.get("token_address")
+            doc_ref = self.firestore_client.collection("portfolio").document(token_address)
+            await doc_ref.set(trade_data)
+            cerebrum.success(f"Neue Position {token_address} im Portfolio (Firestore) gespeichert.")
+        except Exception as e:
+            cerebrum.error(f"Fehler beim Speichern der Position in Firestore: {e}")
+    
+    ## NEU ##
+    async def get_open_positions(self):
+        if not self.firestore_client:
+            cerebrum.error("Firestore-Client nicht verfügbar.")
+            return []
+        try:
+            positions_ref = self.firestore_client.collection("portfolio")
+            positions = [doc.to_dict() async for doc in positions_ref.stream()]
+            return positions
+        except Exception as e:
+            cerebrum.error(f"Fehler beim Abrufen der Positionen von Firestore: {e}")
+            return []
+
 db_manager = DatabaseManager()
