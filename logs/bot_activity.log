@@ -625,3 +625,24 @@
 2025-10-07 17:17:35 | INFO     | database.database_manager:__init__:13 - Erfolgreich mit Redis verbunden.
 2025-10-07 17:17:36 | INFO     | database.database_manager:__init__:21 - Erfolgreich mit Firestore verbunden.
 2025-10-07 17:17:36 | CRITICAL | database.database_manager:__init__:36 - Konnte keine Verbindung zu Upstash Redis herstellen: 'Settings' object has no attribute 'UPSTASH_TOKEN'
+2025-10-07 17:23:15 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 17:23:15 | INFO     | database.database_manager:__init__:12 - Erfolgreich mit Redis verbunden.
+2025-10-07 17:23:15 | INFO     | database.database_manager:__init__:19 - Erfolgreich mit Firestore verbunden.
+2025-10-07 17:23:15 | CRITICAL | database.database_manager:__init__:33 - Konnte keine Verbindung zu Upstash Redis herstellen: Redis URL must specify one of the following schemes (redis://, rediss://, unix://)
+2025-10-07 17:23:15 | INFO     | __main__:main:11 - ==================================================
+2025-10-07 17:23:15 | INFO     | __main__:main:12 - Starte den NonPlusUltra Trading Bot - Projekt Chimera
+2025-10-07 17:23:15 | INFO     | __main__:main:13 - Blueprint Version: V7
+2025-10-07 17:23:15 | INFO     | __main__:main:14 - ==================================================
+2025-10-07 17:23:15 | INFO     | __main__:main:17 - Bot-Services werden initialisiert...
+2025-10-07 17:23:16 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:100 - Gatekeeper startet im Polling-Modus...
+2025-10-07 17:23:16 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
+2025-10-07 17:23:17 | INFO     | bot_services.trigger_watcher_service:watch_for_triggers:50 - Trigger Watcher Service gestartet.
+2025-10-07 17:23:17 | INFO     | bot_services.athena_engine:manage_positions:14 - Athena Engine (Positions-Manager) gestartet.
+2025-10-07 17:23:17 | ERROR    | database.database_manager:get_hot_watchlist:92 - Fehler beim Lesen der Hot Watchlist von Redis: Error Multiple exceptions: [Errno 111] Connect call failed ('::1', 6379, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 6379) connecting to localhost:6379.
+2025-10-07 17:23:27 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
+2025-10-07 17:23:32 | ERROR    | database.database_manager:get_hot_watchlist:92 - Fehler beim Lesen der Hot Watchlist von Redis: Error Multiple exceptions: [Errno 111] Connect call failed ('::1', 6379, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 6379) connecting to localhost:6379.
+2025-10-07 17:23:37 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
+2025-10-07 17:23:47 | ERROR    | database.database_manager:get_hot_watchlist:92 - Fehler beim Lesen der Hot Watchlist von Redis: Error Multiple exceptions: [Errno 111] Connect call failed ('::1', 6379, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 6379) connecting to localhost:6379.
+2025-10-07 17:23:47 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
+2025-10-07 17:23:58 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:103 - Suche nach neuen Pools...
+2025-10-07 17:24:00 | INFO     | __main__:main:31 - Bot-Betrieb beendet.
