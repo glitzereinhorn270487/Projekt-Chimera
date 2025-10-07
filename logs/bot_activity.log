@@ -236,3 +236,4 @@
 2025-10-07 12:35:50 | INFO     | bot_services.trigger_watcher_service:watch_for_triggers:47 - Trigger Watcher Service gestartet.
 2025-10-07 12:35:51 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:155 - WebSocket-Verbindung zu QuickNode hergestellt. Lausche auf neue Pools...
 2025-10-07 12:46:03 | INFO     | __main__:main:30 - Bot-Betrieb beendet.
+2025-10-07 12:46:45 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.

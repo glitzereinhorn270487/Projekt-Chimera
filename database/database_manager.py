@@ -15,8 +15,6 @@ class DatabaseManager:
 
         try:
             # Verbindung zu Firestore (Cold Watchlist)
-            # HINWEIS: Dies erfordert, dass du `gcloud auth application-default login`
-            # einmal lokal in deinem Terminal ausgeführt hast.
             self.firestore_client = firestore.AsyncClient()
             cerebrum.info("Erfolgreich mit Firestore verbunden.")
         except Exception as e:
@@ -33,7 +31,6 @@ class DatabaseManager:
         except Exception as e:
             cerebrum.error(f"Fehler beim Hinzufügen zu Redis: {e}")
 
-             ## NEU ##
     async def remove_from_hot_watchlist(self, token_address: str):
         if not self.redis_client:
             cerebrum.error("Redis-Client nicht verfügbar.")
@@ -43,19 +40,6 @@ class DatabaseManager:
             cerebrum.info(f"Token {token_address} von Hot Watchlist (Redis) entfernt.")
         except Exception as e:
             cerebrum.error(f"Fehler beim Entfernen von Redis: {e}")
-
-            ## NEU ##
-    async def get_hot_watchlist(self):
-        if not self.redis_client:
-            cerebrum.error("Redis-Client nicht verfügbar.")
-            return []
-        try:
-            tokens = await self.redis_client.smembers("hot_watchlist")
-            return list(tokens)
-        except Exception as e:
-            cerebrum.error(f"Fehler beim Lesen der Hot Watchlist von Redis: {e}")
-            return []
-
 
     async def add_to_cold_watchlist(self, token_data: dict):
         if not self.firestore_client:
@@ -72,7 +56,18 @@ class DatabaseManager:
         except Exception as e:
             cerebrum.error(f"Fehler beim Schreiben nach Firestore: {e}")
 
-            async def add_open_position(self, trade_data: dict):
+    async def get_hot_watchlist(self):
+        if not self.redis_client:
+            cerebrum.error("Redis-Client nicht verfügbar.")
+            return []
+        try:
+            tokens = await self.redis_client.smembers("hot_watchlist")
+            return list(tokens)
+        except Exception as e:
+            cerebrum.error(f"Fehler beim Lesen der Hot Watchlist von Redis: {e}")
+            return []
+
+    async def add_open_position(self, trade_data: dict):
         if not self.firestore_client:
             cerebrum.error("Firestore-Client nicht verfügbar.")
             return
@@ -83,8 +78,7 @@ class DatabaseManager:
             cerebrum.success(f"Neue Position {token_address} im Portfolio (Firestore) gespeichert.")
         except Exception as e:
             cerebrum.error(f"Fehler beim Speichern der Position in Firestore: {e}")
-    
-    ## NEU ##
+
     async def get_open_positions(self):
         if not self.firestore_client:
             cerebrum.error("Firestore-Client nicht verfügbar.")
@@ -97,4 +91,5 @@ class DatabaseManager:
             cerebrum.error(f"Fehler beim Abrufen der Positionen von Firestore: {e}")
             return []
 
+# Erstelle eine globale Instanz, die wir importieren können
 db_manager = DatabaseManager()
