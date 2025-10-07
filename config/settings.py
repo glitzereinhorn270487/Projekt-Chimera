@@ -1,14 +1,9 @@
 import os
 from dotenv import load_dotenv
 
-# Lade Umgebungsvariablen aus einer .env-Datei für die lokale Entwicklung
-# Auf dem Server werden diese direkt als Umgebungsvariablen gesetzt
 load_dotenv()
 
 class Settings:
-    """
-    Zentrale Konfigurationsklasse. Lädt alle wichtigen Umgebungsvariablen.
-    """
     # QuickNode API Keys
     QUICKNODE_RPC_URL: str = os.getenv("QUICKNODE_RPC_URL", "")
     QUICKNODE_WSS_URL: str = os.getenv("QUICKNODE_WSS_URL", "")
@@ -17,9 +12,14 @@ class Settings:
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "")
 
-    # Überprüfen, ob alle wichtigen Schlüssel geladen wurden
-    if not all([QUICKNODE_RPC_URL, QUICKNODE_WSS_URL, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID]):
+    # Google Cloud Project
+    GOOGLE_CLOUD_PROJECT: str = os.getenv("GOOGLE_CLOUD_PROJECT", "")
+
+    ## NEU ##
+    # Externe APIs
+    COINGECKO_API_URL: str = "https://api.coingecko.com/api/v3/simple/price"
+
+    if not all([QUICKNODE_RPC_URL, QUICKNODE_WSS_URL, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, GOOGLE_CLOUD_PROJECT]):
         raise ValueError("Wichtige API-Schlüssel oder Konfigurationen fehlen in den Umgebungsvariablen.")
 
-# Erstelle eine Instanz der Settings, die wir im gesamten Projekt importieren können
 settings = Settings()
