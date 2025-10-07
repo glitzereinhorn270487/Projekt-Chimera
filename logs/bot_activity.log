@@ -1,2 +1,12 @@
 2025-10-07 10:39:22 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
 2025-10-07 10:44:02 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 10:46:10 | INFO     | shared_utils.logging_setup:setup_logging:30 - Cerebrum (Logging-System) initialisiert.
+2025-10-07 10:46:11 | INFO     | database.database_manager:__init__:11 - Erfolgreich mit Redis verbunden.
+2025-10-07 10:46:12 | CRITICAL | database.database_manager:__init__:23 - Konnte keine Verbindung zu Firestore herstellen: Project was not passed and could not be determined from the environment.
+2025-10-07 10:46:13 | INFO     | __main__:main:9 - ==================================================
+2025-10-07 10:46:13 | INFO     | __main__:main:10 - Starte den NonPlusUltra Trading Bot - Projekt Chimera
+2025-10-07 10:46:13 | INFO     | __main__:main:11 - Blueprint Version: V7
+2025-10-07 10:46:13 | INFO     | __main__:main:12 - ==================================================
+2025-10-07 10:46:13 | INFO     | __main__:main:15 - Bot-Services werden initialisiert...
+2025-10-07 10:46:13 | INFO     | bot_services.gatekeeper_service:listen_for_new_pools:57 - WebSocket-Verbindung zu QuickNode hergestellt. Lausche auf neue Pools...
+2025-10-07 10:46:13 | DEBUG    | bot_services.gatekeeper_service:listen_for_new_pools:62 - Abonnement-Bestätigung: {"jsonrpc":"2.0","result":3211930,"id":1}
