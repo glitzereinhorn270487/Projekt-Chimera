@@ -1,5 +1,5 @@
 import redis.asyncio as redis
-from google.cloud import firestore_async
+from google.cloud import firestore
 from shared_utils.logging_setup import cerebrum
 from config.settings import settings
 
@@ -17,7 +17,7 @@ class DatabaseManager:
             # Verbindung zu Firestore (Cold Watchlist)
             # HINWEIS: Dies erfordert, dass du `gcloud auth application-default login`
             # einmal lokal in deinem Terminal ausgeführt hast.
-            self.firestore_client = firestore_async.AsyncClient()
+            self.firestore_client = firestore.AsyncClient()
             cerebrum.info("Erfolgreich mit Firestore verbunden.")
         except Exception as e:
             cerebrum.critical(f"Konnte keine Verbindung zu Firestore herstellen: {e}")
