@@ -1,9 +1,9 @@
-
 import redis.asyncio as redis
 from solders.pubkey import Pubkey
 from google.cloud import firestore
 from shared_utils.logging_setup import cerebrum
 from config.settings import settings
+import json # New import
 
 class DatabaseManager:
     def __init__(self):
@@ -22,6 +22,7 @@ class DatabaseManager:
             self.firestore_client = None
             
         try:
+            # Use async client for Upstash as well for consistency
             self.upstash_client = redis.from_url(
                 url=settings.UPSTASH_REDIS_URL,
                 decode_responses=True
@@ -32,27 +33,46 @@ class DatabaseManager:
             self.upstash_client = None
 
     async def load_special_wallets(self):
-        """Lädt und normalisiert Insider- und Smart-Money-Wallets von Upstash."""
+        """
+        ## NEW LOGIC ##
+        Loads and normalizes Insider and Smart-Money wallets from Upstash
+        by scanning for keys with the pattern 'db:insider:*'.
+        """
         if not self.upstash_client:
-            return set(), set()
-        try:
-            await self.upstash_client.ping() # Check connection
-            insider_wallets_raw = await self.upstash_client.smembers("insider_wallets")
-            smart_money_wallets_raw = await self.upstash_client.smembers("smart_money_wallets")
+            return {}, {} # Return dictionaries instead of sets
 
-            def normalize(addr):
-                try: return str(Pubkey.from_string(addr.strip()))
-                except: cerebrum.warning(f"Ungültige Wallet-Adresse in DB: {addr}"); return None
+        insiders = {}
+        smart_money = {}
+
+        try:
+            await self.upstash_client.ping()
             
-            insiders = {n for addr in insider_wallets_raw if (n := normalize(addr))}
-            smart_money = {n for addr in smart_money_wallets_raw if (n := normalize(addr))}
-            
-            cerebrum.success(f"{len(insiders)} Insider und {len(smart_money)} Smart Money Wallets geladen.")
+            # Scan for insider wallets
+            async for key in self.upstash_client.scan_iter("db:insider:*"):
+                wallet_address = key.split(":")[-1]
+                try:
+                    # No need to normalize if the key is already the source of truth
+                    insiders[wallet_address] = json.loads(await self.upstash_client.get(key))
+                except (json.JSONDecodeError, TypeError):
+                    cerebrum.warning(f"Could not parse JSON for insider key: {key}")
+
+            # Scan for smart money wallets (assuming similar pattern)
+            async for key in self.upstash_client.scan_iter("db:smart_money:*"):
+                wallet_address = key.split(":")[-1]
+                try:
+                    smart_money[wallet_address] = json.loads(await self.upstash_client.get(key))
+                except (json.JSONDecodeError, TypeError):
+                    cerebrum.warning(f"Could not parse JSON for smart_money key: {key}")
+
+            cerebrum.success(f"{len(insiders)} Insider and {len(smart_money)} Smart Money Wallets geladen.")
             return insiders, smart_money
+
         except Exception as e:
             cerebrum.error(f"Fehler beim Laden der speziellen Wallets von Upstash: {e}")
-            return set(), set()
+            return {}, {}
 
+    # --- The rest of the file remains the same ---
+    
     async def add_to_hot_watchlist(self, token_address: str):
         if not self.redis_client: return
         try: await self.redis_client.sadd("hot_watchlist", token_address)
