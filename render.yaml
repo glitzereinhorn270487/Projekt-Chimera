@@ -4,12 +4,12 @@ services:
     name: nonplusultra-bot
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python main.py" # We no longer need to start Redis here
+    startCommand: "python main.py" # Wir müssen Redis hier nicht mehr starten
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.1
       - fromGroup: nonplusultra-secrets
-      - key: REDIS_URL # This will be automatically provided by the Redis service below
+      - key: REDIS_URL # Dies wird automatisch vom Redis-Dienst unten bereitgestellt
         fromService:
           type: redis
           name: bot-redis
@@ -18,7 +18,7 @@ services:
   # Dienst 2: Eine dedizierte Redis-Instanz für die Hot Watchlist
   - type: redis
     name: bot-redis
-    plan: free # Use the free Redis plan to start
+    plan: free # Nutze den kostenlosen Redis-Plan für den Anfang
     maxmemoryPolicy: allkeys-lfu
 
 # Umgebungsvariablen-Gruppe für alle Dienste
@@ -27,7 +27,7 @@ envVarGroups:
     envVars:
       - key: QUICKNODE_RPC_URL
         sync: false
-      - key: QUICKNODE_WSS_URL # This is no longer used but we keep it for now
+      - key: QUICKNODE_WSS_URL # Wird nicht mehr verwendet, aber wir behalten es vorerst
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false

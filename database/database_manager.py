@@ -3,18 +3,18 @@ from solders.pubkey import Pubkey
 from google.cloud import firestore
 from shared_utils.logging_setup import cerebrum
 from config.settings import settings
-import os # Import os
+import os # os importieren
 
 class DatabaseManager:
     def __init__(self):
         try:
-            # ## NEW LOGIC ##
-            # Use the REDIS_URL provided by Render's environment
+            # ## NEUE LOGIK ##
+            # Nutze die REDIS_URL, die von Renders Umgebung bereitgestellt wird
             local_redis_url = os.getenv("REDIS_URL")
             if not local_redis_url:
-                # Fallback for local development
+                # Fallback für die lokale Entwicklung
                 local_redis_url = "redis://localhost:6379"
-                cerebrum.warning("REDIS_URL not found, falling back to localhost.")
+                cerebrum.warning("REDIS_URL nicht gefunden, wechsle zu localhost.")
             
             self.redis_client = redis.from_url(local_redis_url, decode_responses=True)
             cerebrum.info("Lokale Redis-Verbindung (Hot Watchlist) initialisiert.")
@@ -22,7 +22,7 @@ class DatabaseManager:
             cerebrum.critical(f"Konnte lokale Redis-Verbindung nicht initialisieren: {e}")
             self.redis_client = None
 
-        # ... The rest of the file remains exactly the same ...
+        # ... Der Rest der Datei bleibt exakt gleich ...
         try:
             self.firestore_client = firestore.AsyncClient()
             cerebrum.info("Erfolgreich mit Firestore verbunden.")
@@ -40,7 +40,7 @@ class DatabaseManager:
             cerebrum.critical(f"Konnte keine Verbindung zu Upstash Redis herstellen: {e}")
             self.upstash_client = None
     
-    # All other functions (load_special_wallets, add_to_hot_watchlist, etc.) are unchanged
+    # Alle anderen Funktionen (load_special_wallets, add_to_hot_watchlist, etc.) sind unverändert
     async def load_special_wallets(self):
         if not self.upstash_client: return set(), set()
         try:
