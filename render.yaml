@@ -14,17 +14,23 @@ services:
           type: redis
           name: bot-redis
           property: connectionString
+      # ## NEUE LOGIK ##
+      # Sage dem Bot, wo er die hochgeladene Schlüssel-Datei finden kann
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        fromSecretFile:
+          name: google_credentials.json
+          path: /etc/secrets/google_credentials.json
 
-  # Dienst 2: Eine dedizierte Redis-Instanz für die Hot Watchlist
+  # Dienst 2: Redis-Instanz
   - type: redis
     name: bot-redis
     plan: free
-    ipAllowList: # <-- HIER IST DIE KORREKTUR
+    ipAllowList:
       - source: 0.0.0.0/0
         description: "Allow all"
     maxmemoryPolicy: allkeys-lfu
 
-# Umgebungsvariablen-Gruppe für alle Dienste
+# Umgebungsvariablen-Gruppe
 envVarGroups:
   - name: nonplusultra-secrets
     envVars:
@@ -40,5 +46,4 @@ envVarGroups:
         sync: false
       - key: UPSTASH_REDIS_URL
         sync: false
-      - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
-        sync: false
+      # Die alte JSON-Variable wird hier nicht mehr benötigt
