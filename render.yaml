@@ -19,9 +19,9 @@ services:
   - type: redis
     name: bot-redis
     plan: free
-    ipAllowList: # <-- THIS IS THE FIX
-      - cidr: 0.0.0.0/0
-        description: "Allow all internal"
+    ipAllowList: # <-- HIER IST DIE KORREKTUR
+      - source: 0.0.0.0/0
+        description: "Allow all"
     maxmemoryPolicy: allkeys-lfu
 
 # Umgebungsvariablen-Gruppe für alle Dienste
