@@ -13,7 +13,7 @@ class Settings:
     DEXSCREENER_API_URL: str = "https://api.dexscreener.com/latest/dex/tokens"
     GOPLUS_API_URL: str = "https://api.gopluslabs.io/api/v1/token_security/1"
 
-    if not all([QUICKNODE_RPC_URL, TELEGRAM_BOT_TOKEN, GOOGLE_CLOUD_PROJECT, UPSTASH_REDIS_URL]):
+    if not all([QUICKNODE_RPC_URL,TELEGRAM_CHAT_ID,DEXSCREENER_API_URL,GOPLUS_API_URL, QUICKNODE_WSS_URL, TELEGRAM_BOT_TOKEN, GOOGLE_CLOUD_PROJECT, UPSTASH_REDIS_URL]):
         raise ValueError("Wichtige API-Schlüssel oder Konfigurationen fehlen.")
 
 settings = Settings()
