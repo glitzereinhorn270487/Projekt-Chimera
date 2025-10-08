@@ -19,7 +19,7 @@ services:
   - type: redis
     name: bot-redis
     plan: free
-    ipAllowList: # <-- HIER IST DIE KORREKTUR
+    ipAllowList: # <-- THIS IS THE FIX
       - cidr: 0.0.0.0/0
         description: "Allow all internal"
     maxmemoryPolicy: allkeys-lfu
