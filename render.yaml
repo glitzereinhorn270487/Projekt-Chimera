@@ -3,24 +3,23 @@ services:
   - type: worker
     name: nonplusultra-bot
     env: python
-    buildCommand: "pip install -r requirements.txt && sudo apt-get update && sudo apt-get install -y redis-server"
-    startCommand: "redis-server --daemonize yes && python main.py"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py" # We no longer need to start Redis here
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.1
       - fromGroup: nonplusultra-secrets
+      - key: REDIS_URL # This will be automatically provided by the Redis service below
+        fromService:
+          type: redis
+          name: bot-redis
+          property: connectionString
 
-  # Dienst 2: Das Firefly Dashboard (Web-Dienst, vorerst deaktiviert)
-  # Diesen Teil werden wir aktivieren, sobald das Dashboard gebaut ist.
-  # - type: web
-  #   name: firefly-dashboard
-  #   env: python
-  #   buildCommand: "pip install -r requirements.txt"
-  #   startCommand: "gunicorn dashboard_app.main:server" # Beispielhafter Startbefehl
-  #   envVars:
-  #     - key: PYTHON_VERSION
-  #       value: 3.12.1
-  #     - fromGroup: nonplusultra-secrets
+  # Dienst 2: Eine dedizierte Redis-Instanz für die Hot Watchlist
+  - type: redis
+    name: bot-redis
+    plan: free # Use the free Redis plan to start
+    maxmemoryPolicy: allkeys-lfu
 
 # Umgebungsvariablen-Gruppe für alle Dienste
 envVarGroups:
@@ -28,7 +27,7 @@ envVarGroups:
     envVars:
       - key: QUICKNODE_RPC_URL
         sync: false
-      - key: QUICKNODE_WSS_URL
+      - key: QUICKNODE_WSS_URL # This is no longer used but we keep it for now
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
@@ -38,5 +37,5 @@ envVarGroups:
         sync: false
       - key: UPSTASH_REDIS_URL
         sync: false
-      - key: GOOGLE_APPLICATION_CREDENTIALS_JSON # Für Firestore-Authentifizierung auf dem Server
+      - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
         sync: false
