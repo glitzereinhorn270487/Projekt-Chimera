@@ -1,41 +1,49 @@
 import redis.asyncio as redis
 from solders.pubkey import Pubkey
 from google.cloud import firestore
-from google.oauth2 import service_account # NEUER IMPORT
+from google.oauth2 import service_account
 from shared_utils.logging_setup import cerebrum
 from config.settings import settings
-import os # NEUER IMPORT
-import json # NEUER IMPORT
+import os
+import json
 
 class DatabaseManager:
     def __init__(self):
+        # --- LOKALE REDIS-VERBINDUNG ---
         try:
-            local_redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
-            if "localhost" in local_redis_url:
-                cerebrum.warning("REDIS_URL nicht gefunden, wechsle zu localhost.")
+            local_redis_url = os.getenv("REDIS_URL")
+            if not local_redis_url:
+                local_redis_url = "redis://localhost:6379"
+                cerebrum.warning("REDIS_URL nicht gefunden, wechsle zu localhost für Hot-Watchlist.")
+            
             self.redis_client = redis.from_url(local_redis_url, decode_responses=True)
             cerebrum.info("Lokale Redis-Verbindung (Hot Watchlist) initialisiert.")
         except Exception as e:
             cerebrum.critical(f"Konnte lokale Redis-Verbindung nicht initialisieren: {e}")
             self.redis_client = None
 
+        # --- FIRESTORE-VERBINDUNG (FINALE VERSION) ---
         try:
-            # ## NEUE AUTHENTIFIZIERUNGS-LOGIK ##
-            # Lese den Pfad zur Schlüsseldatei aus der Umgebungsvariable
+            # Lese den Pfad zur Schlüsseldatei, den Render durch das Secret File setzt
             credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-            if credentials_path and os.path.exists(credentials_path):
-                # Auf dem Server: Lade Anmeldeinformationen explizit aus der Datei
+            
+            if credentials_path:
+                # DIESER PFAD WIRD AUF DEM RENDER-SERVER VERWENDET
+                cerebrum.info(f"Lade Google Credentials aus Secret File: {credentials_path}")
                 credentials = service_account.Credentials.from_service_account_file(credentials_path)
                 self.firestore_client = firestore.AsyncClient(credentials=credentials, project=settings.GOOGLE_CLOUD_PROJECT)
-                cerebrum.info("Erfolgreich mit Firestore über Secret File verbunden.")
+                cerebrum.success("Erfolgreich mit Firestore über Secret File verbunden.")
             else:
-                # Fallback für lokale Entwicklung (automatische Suche)
+                # DIESER PFAD WIRD LOKAL IN CODESPACES VERWENDET
+                # Fallback für die lokale Entwicklung, der die automatische Suche nutzt
+                cerebrum.info("Versuche, Firestore mit lokalen Application Default Credentials zu verbinden...")
                 self.firestore_client = firestore.AsyncClient()
-                cerebrum.info("Erfolgreich mit Firestore (lokale ADC) verbunden.")
+                cerebrum.success("Erfolgreich mit Firestore (lokale ADC) verbunden.")
         except Exception as e:
             cerebrum.critical(f"Konnte keine Verbindung zu Firestore herstellen: {e}")
             self.firestore_client = None
             
+        # --- UPSTASH REDIS-VERBINDUNG ---
         try:
             self.upstash_client = redis.from_url(
                 url=settings.UPSTASH_REDIS_URL,
@@ -46,7 +54,7 @@ class DatabaseManager:
             cerebrum.critical(f"Konnte keine Verbindung zu Upstash Redis herstellen: {e}")
             self.upstash_client = None
     
-    # ... Der Rest der Datei (alle async def Funktionen) bleibt unverändert ...
+    # ... Der Rest der Datei bleibt unverändert ...
     async def load_special_wallets(self):
         if not self.upstash_client: return set(), set()
         try:
