@@ -6,44 +6,39 @@ from shared_utils.logging_setup import cerebrum
 from config.settings import settings
 import os
 import json
+from google.api_core.client_options import ClientOptions # NEUER IMPORT
+from google.api_core.exceptions import DeadlineExceeded # NEUER IMPORT
 
 class DatabaseManager:
     def __init__(self):
-        # --- LOKALE REDIS-VERBINDUNG ---
+        # ... (Redis und Upstash Verbindungen bleiben unverändert) ...
         try:
-            local_redis_url = os.getenv("REDIS_URL")
-            if not local_redis_url:
-                local_redis_url = "redis://localhost:6379"
+            local_redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+            if "localhost" in local_redis_url:
                 cerebrum.warning("REDIS_URL nicht gefunden, wechsle zu localhost für Hot-Watchlist.")
-            
             self.redis_client = redis.from_url(local_redis_url, decode_responses=True)
             cerebrum.info("Lokale Redis-Verbindung (Hot Watchlist) initialisiert.")
         except Exception as e:
             cerebrum.critical(f"Konnte lokale Redis-Verbindung nicht initialisieren: {e}")
             self.redis_client = None
 
-        # --- FIRESTORE-VERBINDUNG (FINALE VERSION) ---
         try:
-            # Lese den Pfad zur Schlüsseldatei, den Render durch das Secret File setzt
+            # ## NEUE TIMEOUT-LOGIK ##
+            # Setze ein höheres API-Timeout, um "Cold Start"-Probleme zu vermeiden
+            firestore_options = ClientOptions(api_endpoint=None, api_key=None, credentials_file=None, quota_project_id=None, client_cert_source=None, scopes=None, without_authentication=False, timeout=600.0)
+
             credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-            
-            if credentials_path:
-                # DIESER PFAD WIRD AUF DEM RENDER-SERVER VERWENDET
-                cerebrum.info(f"Lade Google Credentials aus Secret File: {credentials_path}")
+            if credentials_path and os.path.exists(credentials_path):
                 credentials = service_account.Credentials.from_service_account_file(credentials_path)
-                self.firestore_client = firestore.AsyncClient(credentials=credentials, project=settings.GOOGLE_CLOUD_PROJECT)
-                cerebrum.success("Erfolgreich mit Firestore über Secret File verbunden.")
+                self.firestore_client = firestore.AsyncClient(credentials=credentials, project=settings.GOOGLE_CLOUD_PROJECT, client_options=firestore_options)
+                cerebrum.info("Erfolgreich mit Firestore über Secret File verbunden.")
             else:
-                # DIESER PFAD WIRD LOKAL IN CODESPACES VERWENDET
-                # Fallback für die lokale Entwicklung, der die automatische Suche nutzt
-                cerebrum.info("Versuche, Firestore mit lokalen Application Default Credentials zu verbinden...")
-                self.firestore_client = firestore.AsyncClient()
-                cerebrum.success("Erfolgreich mit Firestore (lokale ADC) verbunden.")
+                self.firestore_client = firestore.AsyncClient(project=settings.GOOGLE_CLOUD_PROJECT, client_options=firestore_options)
+                cerebrum.info("Erfolgreich mit Firestore (lokale ADC) verbunden.")
         except Exception as e:
             cerebrum.critical(f"Konnte keine Verbindung zu Firestore herstellen: {e}")
             self.firestore_client = None
             
-        # --- UPSTASH REDIS-VERBINDUNG ---
         try:
             self.upstash_client = redis.from_url(
                 url=settings.UPSTASH_REDIS_URL,
@@ -117,6 +112,9 @@ class DatabaseManager:
         try:
             positions_ref = self.firestore_client.collection("portfolio")
             return [doc.to_dict() async for doc in positions_ref.stream()]
+        except DeadlineExceeded:
+            cerebrum.warning("Firestore-Timeout beim Abrufen von Positionen. Das kann bei Cold Starts passieren. Versuche es im nächsten Zyklus erneut.")
+            return []
         except Exception as e:
             cerebrum.error(f"Fehler beim Abrufen der Positionen von Firestore: {e}")
             return []
