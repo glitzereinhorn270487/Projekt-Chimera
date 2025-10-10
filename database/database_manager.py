@@ -20,18 +20,16 @@ class DatabaseManager:
             self.redis_client = None
 
         try:
-            # ## NEW, SIMPLIFIED LOGIC ##
+            # ## FINAL, SIMPLIFIED LOGIC ##
+            # We are reverting to the simplest possible client initialization.
+            # This relies on the GOOGLE_APPLICATION_CREDENTIALS environment variable being set correctly.
             credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-            
-            # Setze ein Timeout von 10 Minuten (600 Sekunden) direkt für alle RPC-Aufrufe
-            client_kwargs = {"api_kwargs": {"timeout": 600}}
-
             if credentials_path and os.path.exists(credentials_path):
                 credentials = service_account.Credentials.from_service_account_file(credentials_path)
-                self.firestore_client = firestore.AsyncClient(credentials=credentials, project=settings.GOOGLE_CLOUD_PROJECT, **client_kwargs)
+                self.firestore_client = firestore.AsyncClient(credentials=credentials, project=settings.GOOGLE_CLOUD_PROJECT)
                 cerebrum.info("Erfolgreich mit Firestore über Secret File verbunden.")
             else:
-                self.firestore_client = firestore.AsyncClient(project=settings.GOOGLE_CLOUD_PROJECT, **client_kwargs)
+                self.firestore_client = firestore.AsyncClient(project=settings.GOOGLE_CLOUD_PROJECT)
                 cerebrum.info("Erfolgreich mit Firestore (lokale ADC) verbunden.")
         except Exception as e:
             cerebrum.critical(f"Konnte keine Verbindung zu Firestore herstellen: {e}")
