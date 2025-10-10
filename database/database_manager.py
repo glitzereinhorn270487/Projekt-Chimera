@@ -10,11 +10,9 @@ import base64 # NEUER IMPORT
 
 class DatabaseManager:
     def __init__(self):
-        # ... (Redis und Upstash Verbindungen bleiben unverändert) ...
+        # ... (Redis und Upstash Verbindungen) ...
         try:
             local_redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
-            if "localhost" in local_redis_url:
-                cerebrum.warning("REDIS_URL nicht gefunden, wechsle zu localhost.")
             self.redis_client = redis.from_url(local_redis_url, decode_responses=True)
             cerebrum.info("Lokale Redis-Verbindung initialisiert.")
         except Exception as e:
@@ -24,14 +22,12 @@ class DatabaseManager:
             # ## FINALE AUTHENTIFIZIERUNGS-LOGIK (BASE64) ##
             base64_creds = os.getenv("GOOGLE_CREDENTIALS_BASE64")
             if base64_creds:
-                # Auf dem Server: Dekodiere den Base64-String und lade die Credentials
                 decoded_creds_json = base64.b64decode(base64_creds).decode('utf-8')
                 creds_dict = json.loads(decoded_creds_json)
                 credentials = service_account.Credentials.from_service_account_info(creds_dict)
                 self.firestore_client = firestore.AsyncClient(credentials=credentials, project=settings.GOOGLE_CLOUD_PROJECT)
                 cerebrum.success("Erfolgreich mit Firestore über Base64-Credentials verbunden.")
             else:
-                # Fallback für die lokale Entwicklung
                 self.firestore_client = firestore.AsyncClient()
                 cerebrum.info("Erfolgreich mit Firestore (lokale ADC) verbunden.")
         except Exception as e:
@@ -42,6 +38,9 @@ class DatabaseManager:
             cerebrum.info("Erfolgreich mit Upstash Redis verbunden.")
         except Exception as e:
             self.upstash_client = None; cerebrum.critical(f"Upstash-Verbindung fehlgeschlagen: {e}")
+    
+    # ... Der Rest der Datei bleibt unverändert ...
+    # (alle async def Funktionen)
     
     # ... Der Rest der Datei bleibt unverändert ...
     async def load_special_wallets(self):
