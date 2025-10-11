@@ -13,7 +13,7 @@ from shared_utils.price_oracle import get_sol_price_usd
 RAYDIUM_LP_V4 = Pubkey.from_string('675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8')
 MINIMUM_LIQUIDITY_USD = 15000
 SOL_MINT_ADDRESS = "So11111111111111111111111111111111111111112"
-POLLING_INTERVAL_SECONDS = 10
+POLLING_INTERVAL_SECONDS = 30
 
 def _parse_pool_info_from_logs(logs):
     try:
